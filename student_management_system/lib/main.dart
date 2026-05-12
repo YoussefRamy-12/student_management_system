@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/students/presentation/screens/student_list_screen.dart';
+import 'features/home/presentation/screens/home_screen.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
   runApp(
@@ -15,9 +16,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Student App - Clean Architecture',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
-      home: const StudentListScreen(),
+      title: 'نظام إدارة الطلاب',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      home: const HomeScreen(),
     );
   }
 }
