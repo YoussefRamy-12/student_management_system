@@ -45,7 +45,21 @@ class HomeScreen extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const StudentListScreen(),
+                      builder: (_) =>
+                          const StudentListScreen(isAttendanceMode: true),
+                    ),
+                  ),
+                ),
+                _ActionCard(
+                  title: 'سجل الطلاب',
+                  subtitle: 'عرض بيانات جميع الطلاب',
+                  icon: Icons.people_alt_rounded,
+                  color: Colors.indigo.shade400,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const StudentListScreen(isAttendanceMode: false),
                     ),
                   ),
                 ),

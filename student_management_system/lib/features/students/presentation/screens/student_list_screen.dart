@@ -6,15 +6,51 @@ import '../providers/student_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class StudentListScreen extends ConsumerWidget {
-  const StudentListScreen({super.key});
+  final bool isAttendanceMode;
+
+  const StudentListScreen({super.key, this.isAttendanceMode = true});
+
+  void search(WidgetRef ref, String value) {
+    if (value.isEmpty) {
+      ref.read(studentSearchQueryProvider.notifier).state = "";
+    } else {
+      ref.read(studentSearchQueryProvider.notifier).state = value;
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // We "watch" the provider. Riverpod handles loading/error/data automatically.
-    final studentsAsync = ref.watch(studentsListProvider);
+    // Watch the filtered provider instead of the raw list
+    final studentsAsync = ref.watch(filteredStudentsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('قائمة الطلاب')),
+      appBar: AppBar(
+        title: Text(isAttendanceMode ? 'تسجيل الحضور' : 'سجل الطلاب'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: TextField(
+              style: GoogleFonts.outfit(fontSize: 15),
+              controller: TextEditingController(
+                text: ref.watch(studentSearchQueryProvider),
+              ),
+              onChanged: (value) => search(ref, value),
+              decoration: InputDecoration(
+                hintText: 'البحث عن طريق الكود (ID)...',
+                prefixIcon: const Icon(Icons.search_rounded),
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: studentsAsync.when(
         data: (students) => ListView.separated(
           padding: const EdgeInsets.all(20),
@@ -65,21 +101,32 @@ class StudentListScreen extends ConsumerWidget {
                   ),
                 ),
                 subtitle: Text(
-                  'الصف ${student.grade} • ${student.diacon}',
+                  'الصف ${student.grade} • ID: ${student.id}',
                   style: GoogleFonts.outfit(fontSize: 13),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    color: isAttendanceMode
+                        ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                        : Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.fingerprint_rounded,
-                    color: AppTheme.primaryColor,
+                  child: Icon(
+                    isAttendanceMode
+                        ? Icons.fingerprint_rounded
+                        : Icons.person_rounded,
+                    color: isAttendanceMode
+                        ? AppTheme.primaryColor
+                        : Colors.blue,
                   ),
                 ),
-                onTap: () => _showAttendanceBottomSheet(context, ref, student),
+                onTap: isAttendanceMode
+                    ? () => _showAttendanceBottomSheet(context, ref, student)
+                    : () {
+                        // For directory mode, maybe show details or just do nothing for now
+                        _showStudentDetails(context, student);
+                      },
               ),
             );
           },
@@ -99,6 +146,66 @@ class StudentListScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showStudentDetails(BuildContext context, StudentEntity student) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'بيانات الطالب',
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _detailRow(Icons.person, 'الاسم', student.name),
+            _detailRow(Icons.badge, 'ID', student.id),
+            _detailRow(Icons.school, 'الصف', student.grade),
+            _detailRow(Icons.location_on, 'العنوان', student.address),
+            _detailRow(Icons.phone, 'الموبايل', student.phone),
+            _detailRow(Icons.chat, 'واتساب', student.whatsapp),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppTheme.primaryColor),
+          const SizedBox(width: 12),
+          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(value),
+        ],
       ),
     );
   }

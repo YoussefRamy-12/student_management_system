@@ -27,3 +27,27 @@ final studentsListProvider = FutureProvider<List<StudentEntity>>((ref) {
   final useCase = ref.watch(getAllStudentsUseCaseProvider);
   return useCase.execute();
 });
+
+// --- Search Implementation ---
+
+/// Provider to hold the current search query
+final studentSearchQueryProvider = StateProvider<String>((ref) => '');
+
+/// Provider to return filtered students based on ID
+final filteredStudentsProvider = Provider<AsyncValue<List<StudentEntity>>>((
+  ref,
+) {
+  final studentsAsync = ref.watch(studentsListProvider);
+  final query = ref.watch(studentSearchQueryProvider).trim();
+
+  return studentsAsync.whenData((students) {
+    if (query.isEmpty) return students;
+    // Filter by student ID
+    return students
+        .where(
+          (student) =>
+              student.id.contains(query) || student.name.contains(query),
+        )
+        .toList();
+  });
+});
