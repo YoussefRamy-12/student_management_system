@@ -14,6 +14,8 @@ abstract class IAttendanceRemoteDataSource {
     String? note,
   });
   Future<bool> registerStudent(StudentEntity student);
+  Future<bool> bulkRegisterStudents(List<StudentEntity> students);
+  Future<bool> clearAllStudents();
 }
 
 class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
@@ -47,6 +49,7 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
     try {
       final response = await http.post(
         Uri.parse(_url),
+        headers: {'Content-Type': 'text/plain'},
         body: jsonEncode({
           "action": "SUBMIT_ATTENDANCE",
           "data": {
@@ -75,6 +78,7 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
     try {
       final response = await http.post(
         Uri.parse(_url),
+        headers: {'Content-Type': 'text/plain'},
         body: jsonEncode({
           "action": "REGISTER_STUDENT",
           "data": {
@@ -89,8 +93,10 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
         }),
       );
 
+      debugPrint("Register Response: ${response.statusCode}");
+      debugPrint("Register Body: ${response.body}");
+
       if (response.statusCode == 200 || response.statusCode == 302) {
-        // For Google Apps Script, 302 often means success but redirecting
         if (response.statusCode == 302 || response.body.isEmpty) {
           return true;
         }
@@ -100,6 +106,85 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
       return false;
     } catch (e) {
       debugPrint("Register Error: $e");
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> bulkRegisterStudents(List<StudentEntity> students) async {
+    try {
+      debugPrint(
+        "Bulk Registering ${students.length} students in small batches...",
+      );
+
+      const int batchSize = 15;
+      for (var i = 0; i < students.length; i += batchSize) {
+        final end = (i + batchSize < students.length)
+            ? i + batchSize
+            : students.length;
+        final batch = students.sublist(i, end);
+
+        debugPrint(
+          "Sending batch ${i ~/ batchSize + 1} (${batch.length} students)...",
+        );
+
+        final response = await http.post(
+          Uri.parse(_url),
+          headers: {'Content-Type': 'text/plain'},
+          body: jsonEncode({
+            "action": "BULK_REGISTER",
+            "data": batch
+                .map(
+                  (s) => {
+                    "id": s.id,
+                    "name": s.name,
+                    "grade": s.grade,
+                    "address": s.address,
+                    "diacon": s.diacon,
+                    "whatsapp": s.whatsapp,
+                    "phone": s.phone,
+                    "notes": s.notes,
+                  },
+                )
+                .toList(),
+          }),
+        );
+
+        debugPrint("Batch Response Code: ${response.statusCode}");
+
+        if (response.statusCode != 200 && response.statusCode != 302) {
+          debugPrint("Batch failed with code ${response.statusCode}");
+          return false;
+        }
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint("Bulk Register Error: $e");
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> clearAllStudents() async {
+    try {
+      debugPrint("Clearing all students...");
+      final response = await http.post(
+        Uri.parse(_url),
+        headers: {'Content-Type': 'text/plain'},
+        body: jsonEncode({"action": "CLEAR_ALL_STUDENTS"}),
+      );
+
+      debugPrint("Clear Response Code: ${response.statusCode}");
+
+      if (response.statusCode == 200 || response.statusCode == 302) {
+        if (response.statusCode == 302 || response.body.isEmpty) return true;
+        final result = jsonDecode(response.body);
+        return result['status'] == 'success';
+      }
+      return false;
+    } catch (e) {
+      debugPrint("Clear Error: $e");
       return false;
     }
   }

@@ -71,3 +71,14 @@ app.*.map.json
 
 # Web related
 **/web/stacktrace/
+
+# Analysis and Temp files
+analysis_results.txt
+analysis_results_*.txt
+*.lock
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+package_config.json
+package_graph.json

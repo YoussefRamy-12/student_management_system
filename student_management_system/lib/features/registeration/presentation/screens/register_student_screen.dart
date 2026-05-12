@@ -113,13 +113,18 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _grade,
+                      initialValue: _grade,
                       decoration: const InputDecoration(
                         labelText: "المرحلة",
                         prefixIcon: Icon(Icons.school_outlined),
                       ),
                       items: ['4', '5', '6']
-                          .map((g) => DropdownMenuItem(value: g, child: Text("صف $g")))
+                          .map(
+                            (g) => DropdownMenuItem(
+                              value: g,
+                              child: Text("صف $g"),
+                            ),
+                          )
                           .toList(),
                       onChanged: (val) => setState(() => _grade = val!),
                       validator: (val) => val == null ? "مطلوب" : null,
@@ -128,15 +133,21 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _diacon,
+                      initialValue: _diacon,
                       decoration: const InputDecoration(
                         labelText: "الحالة",
                         prefixIcon: Icon(Icons.auto_awesome_outlined),
                       ),
                       items: [
-                        const DropdownMenuItem(value: "نعم", child: Text("نعم")),
+                        const DropdownMenuItem(
+                          value: "نعم",
+                          child: Text("نعم"),
+                        ),
                         const DropdownMenuItem(value: "لا", child: Text("لا")),
-                        const DropdownMenuItem(value: "بنت", child: Text("بنت")),
+                        const DropdownMenuItem(
+                          value: "بنت",
+                          child: Text("بنت"),
+                        ),
                       ],
                       onChanged: (val) => setState(() => _diacon = val!),
                       validator: (val) => val == null ? "مطلوب" : null,
@@ -192,7 +203,7 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primaryColor.withOpacity(0.3),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -219,9 +230,9 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: AppTheme.primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
+        color: AppTheme.primaryColor,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 }

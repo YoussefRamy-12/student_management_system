@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/excel_helper.dart';
+import '../../../../core/entities/student_entity.dart';
 import '../providers/student_provider.dart';
 
 class ImportExportScreen extends ConsumerWidget {
@@ -23,9 +25,7 @@ class ImportExportScreen extends ConsumerWidget {
               subtitle: 'إضافة مجموعة طلاب من ملف خارجي',
               icon: Icons.upload_file_rounded,
               color: Colors.green,
-              onTap: () {
-                // TODO: Implement Excel Import
-              },
+              onTap: () => _importData(context, ref),
             ),
             const SizedBox(height: 20),
             _buildActionCard(
@@ -67,16 +67,16 @@ class ImportExportScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 32),
@@ -107,7 +107,7 @@ class ImportExportScreen extends ConsumerWidget {
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               size: 16,
             ),
           ],
@@ -159,7 +159,7 @@ class ImportExportScreen extends ConsumerWidget {
                   hintText: 'اسم الملف',
                   suffixText: '.xlsx',
                   filled: true,
-                  fillColor: AppTheme.primaryColor.withOpacity(0.05),
+                  fillColor: AppTheme.primaryColor.withValues(alpha: 0.05),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -225,6 +225,166 @@ class ImportExportScreen extends ConsumerWidget {
         actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       ),
     );
+  }
+
+  void _importData(BuildContext context, WidgetRef ref) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+        withData: true,
+      );
+
+      if (result == null || result.files.first.bytes == null) return;
+
+      final students = ExcelHelper.importStudentsFromExcel(
+        result.files.first.bytes!,
+      );
+
+      if (students.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('الملف فارغ أو بتنسيق غير صحيح')),
+          );
+        }
+        return;
+      }
+
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            title: Text(
+              'خيارات الاستيراد',
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'تم العثور على ${students.length} طالب. كيف تريد استيرادهم؟',
+                  style: const TextStyle(color: AppTheme.textLightColor),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _processImport(context, ref, students, isReplace: false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('إضافة للبيانات الحالية'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _processImport(context, ref, students, isReplace: true);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.red,
+                      side: const BorderSide(color: Colors.red),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text('استبدال الكل (مسح الحالي)'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'إلغاء',
+                      style: TextStyle(color: AppTheme.textLightColor),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطأ أثناء اختيار الملف: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _processImport(
+    BuildContext context,
+    WidgetRef ref,
+    List<StudentEntity> students, {
+    required bool isReplace,
+  }) async {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('جاري الاستيراد...')));
+    }
+
+    try {
+      final repository = ref.read(studentRepositoryProvider);
+      bool success = true;
+
+      if (isReplace) {
+        success = await repository.clearAllStudents();
+      }
+
+      if (success) {
+        success = await repository.bulkRegisterStudents(students);
+      }
+
+      if (context.mounted) {
+        if (success) {
+          // Refresh the list provider to show new data
+          final _ = ref.refresh(studentsListProvider);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تم الاستيراد بنجاح! ✅'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('فشل الاستيراد ❌ (راجع سجل الأخطاء)'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   void _exportData(BuildContext context, WidgetRef ref, String fileName) async {

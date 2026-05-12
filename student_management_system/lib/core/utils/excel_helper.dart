@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:excel/excel.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import '../entities/student_entity.dart';
 
 class ExcelHelper {
@@ -32,8 +30,8 @@ class ExcelHelper {
       'المرحلة',
       'العنوان',
       'مرشوم شماس',
-      'واتس اب',
-      'رقم الهاتف',
+      'رقم تليفون (واتس اب)',
+      'رقم تليفون اخر',
       'ملحوظات',
     ];
 
@@ -106,5 +104,53 @@ class ExcelHelper {
         );
       }
     }
+  }
+
+  static List<StudentEntity> importStudentsFromExcel(Uint8List bytes) {
+    final excel = Excel.decodeBytes(bytes);
+    final List<StudentEntity> students = [];
+
+    for (var table in excel.tables.keys) {
+      final sheet = excel.tables[table];
+      if (sheet == null) continue;
+
+      for (var row in sheet.rows) {
+        if (row.isEmpty) continue;
+
+        String val(int col) {
+          if (col >= row.length) return "";
+          final cell = row[col];
+          if (cell == null || cell.value == null) return "";
+          return cell.value.toString().trim();
+        }
+
+        // Detect and skip header row
+        String col0 = val(0);
+        String col1 = val(1);
+        if (col1 == "الاسم" || col1 == "Name" || col0 == "ID" || col0 == "م") {
+          continue;
+        }
+
+        // Name is usually in column 1, but if it's empty, check column 0
+        String name = col1.isNotEmpty ? col1 : col0;
+        String id = col1.isNotEmpty ? col0 : ""; // If name was in col0, id is unknown
+
+        if (name.isNotEmpty) {
+          students.add(
+            StudentEntity(
+              id: id,
+              name: name,
+              grade: val(2),
+              address: val(3),
+              diacon: val(4),
+              whatsapp: val(5),
+              phone: val(6),
+              notes: val(7),
+            ),
+          );
+        }
+      }
+    }
+    return students;
   }
 }

@@ -84,7 +84,7 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -95,7 +95,7 @@ class HomeScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -151,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                 top: -50,
                 child: CircleAvatar(
                   radius: 100,
-                  backgroundColor: Colors.white.withOpacity(0.1),
+                  backgroundColor: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
               Padding(
@@ -163,7 +163,7 @@ class HomeScreen extends StatelessWidget {
                       'مرحباً بك!',
                       style: GoogleFonts.outfit(
                         fontSize: 18,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -212,8 +212,8 @@ class _ActionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: (gradient?.colors.last ?? color ?? Colors.black).withOpacity(
-              0.3,
+            color: (gradient?.colors.last ?? color ?? Colors.black).withValues(
+              alpha: 0.3,
             ),
             blurRadius: 15,
             offset: const Offset(0, 8),
@@ -234,7 +234,7 @@ class _ActionCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(icon, color: Colors.white, size: 28),
@@ -255,7 +255,7 @@ class _ActionCard extends StatelessWidget {
                       subtitle,
                       style: GoogleFonts.outfit(
                         fontSize: 12,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ],

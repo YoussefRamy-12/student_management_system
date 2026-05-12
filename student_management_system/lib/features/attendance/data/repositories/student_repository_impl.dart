@@ -26,4 +26,14 @@ class StudentRepositoryImpl implements IStudentRepository {
   Future<bool> registerStudent(StudentEntity student) async {
     return await remoteDataSource.registerStudent(student);
   }
+
+  @override
+  Future<bool> bulkRegisterStudents(List<StudentEntity> students) async {
+    return await remoteDataSource.bulkRegisterStudents(students);
+  }
+
+  @override
+  Future<bool> clearAllStudents() async {
+    return await remoteDataSource.clearAllStudents();
+  }
 }
