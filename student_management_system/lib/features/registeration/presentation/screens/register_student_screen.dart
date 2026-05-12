@@ -16,9 +16,9 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
   final _formKey = GlobalKey<FormState>();
   // State variables for form fields
   String? _name;
-  String _grade = '4';
+  String? _grade;
   String? _address;
-  String _diacon = 'لا';
+  String? _diacon;
   String? _whatsapp;
   String? _phone;
   String? _notes;
