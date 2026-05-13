@@ -198,8 +198,8 @@ class ImportExportScreen extends ConsumerWidget {
                           ? () {
                               if (formKey.currentState!.validate()) {
                                 final name = controller.text.trim();
-                                Navigator.pop(context);
                                 _exportData(context, ref, name);
+                                Navigator.pop(context);
                               }
                             }
                           : null,

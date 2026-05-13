@@ -341,6 +341,7 @@ class StudentListScreen extends ConsumerWidget {
                             title: 'حصة',
                             icon: Icons.school_rounded,
                             color: Colors.blue,
+                            isDisabled: _selectedDate.weekday != DateTime.saturday,
                             onTap: () => _sendAttendance(
                               context,
                               ref,
@@ -377,6 +378,7 @@ class StudentListScreen extends ConsumerWidget {
                             title: 'قداس',
                             icon: Icons.church_rounded,
                             color: Colors.purple,
+                            isDisabled: _selectedDate.weekday != DateTime.friday,
                             onTap: () => _sendAttendance(
                               context,
                               ref,
@@ -467,36 +469,40 @@ class _AttendanceOption extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
+  final bool isDisabled;
 
   const _AttendanceOption({
     required this.title,
     required this.icon,
     required this.color,
     required this.onTap,
+    this.isDisabled = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayColor = isDisabled ? Colors.grey : color;
+
     return InkWell(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
+          color: displayColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
+          border: Border.all(color: displayColor.withValues(alpha: 0.2)),
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 32),
+            Icon(icon, color: displayColor, size: 32),
             const SizedBox(height: 12),
             Text(
               title,
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.bold,
-                color: color,
+                color: displayColor,
                 fontSize: 14,
               ),
             ),
