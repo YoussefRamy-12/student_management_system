@@ -31,10 +31,10 @@ final studentsListProvider = FutureProvider<List<StudentEntity>>((ref) {
 // --- Search Implementation ---
 
 /// Provider to hold the current search query
-final studentSearchQueryProvider = StateProvider<String>((ref) => '');
+final studentSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// Provider to return filtered students based on ID
-final filteredStudentsProvider = Provider<AsyncValue<List<StudentEntity>>>((
+final filteredStudentsProvider = Provider.autoDispose<AsyncValue<List<StudentEntity>>>((
   ref,
 ) {
   final studentsAsync = ref.watch(studentsListProvider);

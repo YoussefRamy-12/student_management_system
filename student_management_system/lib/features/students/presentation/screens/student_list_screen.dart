@@ -32,9 +32,6 @@ class StudentListScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child: TextField(
               style: GoogleFonts.outfit(fontSize: 15),
-              controller: TextEditingController(
-                text: ref.watch(studentSearchQueryProvider),
-              ),
               onChanged: (value) => search(ref, value),
               decoration: InputDecoration(
                 hintText: 'البحث عن طريق الكود (ID)...',
@@ -426,7 +423,9 @@ class StudentListScreen extends ConsumerWidget {
     String? note,
     DateTime? date,
   ) async {
-    Navigator.pop(context); // Close bottom sheet immediately so user isn't stuck
+    Navigator.pop(
+      context,
+    ); // Close bottom sheet immediately so user isn't stuck
 
     ScaffoldMessenger.of(
       context,
@@ -462,7 +461,6 @@ class StudentListScreen extends ConsumerWidget {
     }
   }
 }
-
 
 class _AttendanceOption extends StatelessWidget {
   final String title;
