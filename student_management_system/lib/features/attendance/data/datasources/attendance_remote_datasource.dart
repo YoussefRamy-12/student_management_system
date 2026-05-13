@@ -10,6 +10,7 @@ abstract class IAttendanceRemoteDataSource {
     required String id,
     required String name,
     required String type,
+    required DateTime date,
     String? exception,
     String? note,
   });
@@ -43,6 +44,7 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
     required String id,
     required String name,
     required String type,
+    required DateTime date,
     String? exception,
     String? note,
   }) async {
@@ -53,6 +55,7 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
         body: jsonEncode({
           "action": "SUBMIT_ATTENDANCE",
           "data": {
+            "date": date.toIso8601String().substring(0, 10),
             "id": id,
             "name": name,
             "type": type,
@@ -62,13 +65,16 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 302) {
+        if (response.statusCode == 302 || response.body.isEmpty) {
+          return true;
+        }
         final result = jsonDecode(response.body);
         return result['status'] == 'success';
       }
       return false;
     } catch (e) {
-      debugPrint("Submit Error: $e");
+      debugPrint("Register Error: $e");
       return false;
     }
   }

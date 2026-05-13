@@ -10,15 +10,23 @@ class StudentRepositoryImpl implements IStudentRepository {
   @override
   Future<List<StudentEntity>> fetchAllStudents() async {
     final models = await remoteDataSource.getStudents();
-    return models; 
+    return models;
   }
 
   @override
-  Future<bool> submitAttendance(String id, String name, String type) async {
+  Future<bool> submitAttendance(
+    String id,
+    String name,
+    String type,
+    String note,
+    DateTime date,
+  ) async {
     return await remoteDataSource.submitAttendance(
       id: id,
       name: name,
       type: type,
+      note: note,
+      date: date,
     );
   }
 

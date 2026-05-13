@@ -9,6 +9,10 @@ class AppTheme {
   static const Color cardColor = Colors.white;
   static const Color textColor = Color(0xFF1E293B);
   static const Color textLightColor = Color(0xFF64748B);
+  static const Color textDarkColor = Color(0xFF1E293B);
+  static const Color presentColor = Color(0xFF10B981);
+  static const Color absentColor = Color(0xFFEF4444);
+  static const Color lateColor = Color(0xFFF59E0B);
 
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primaryColor, secondaryColor],

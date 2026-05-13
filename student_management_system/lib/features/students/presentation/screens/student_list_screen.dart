@@ -187,8 +187,8 @@ class StudentListScreen extends ConsumerWidget {
             _detailRow(Icons.badge, 'ID', student.id),
             _detailRow(Icons.school, 'الصف', student.grade),
             _detailRow(Icons.location_on, 'العنوان', student.address),
-            _detailRow(Icons.phone, 'الموبايل', student.phone),
             _detailRow(Icons.chat, 'واتساب', student.whatsapp),
+            _detailRow(Icons.phone, 'الموبايل', student.phone),
             const SizedBox(height: 24),
           ],
         ),
@@ -218,112 +218,203 @@ class StudentListScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+      isScrollControlled: true,
+      builder: (context) {
+        final _noteController = TextEditingController();
+        DateTime _selectedDate = DateTime.now();
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'تسجيل حضور',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      student.name,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: AppTheme.textLightColor,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    InkWell(
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: const ColorScheme.light(
+                                  primary: AppTheme.primaryColor,
+                                  onPrimary: Colors.white,
+                                  onSurface: AppTheme.textDarkColor,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _selectedDate = pickedDate;
+                          });
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'التاريخ',
+                          labelStyle: GoogleFonts.outfit(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}",
+                              style: GoogleFonts.outfit(fontSize: 16),
+                            ),
+                            const Icon(
+                              Icons.calendar_month_rounded,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _noteController,
+                      decoration: InputDecoration(
+                        labelText: 'ملاحظات (اختياري)',
+                        labelStyle: GoogleFonts.outfit(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                      ),
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _AttendanceOption(
+                            title: 'حصة',
+                            icon: Icons.school_rounded,
+                            color: Colors.blue,
+                            onTap: () => _sendAttendance(
+                              context,
+                              ref,
+                              student,
+                              "حضور حصة السبت",
+                              _noteController.text,
+                              _selectedDate,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _AttendanceOption(
+                            title: 'اعتذار حصة',
+                            icon: Icons.event_busy_rounded,
+                            color: Colors.orange,
+                            onTap: () => _sendAttendance(
+                              context,
+                              ref,
+                              student,
+                              "اعتذار عن حصة السبت",
+                              _noteController.text,
+                              _selectedDate,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _AttendanceOption(
+                            title: 'قداس',
+                            icon: Icons.church_rounded,
+                            color: Colors.purple,
+                            onTap: () => _sendAttendance(
+                              context,
+                              ref,
+                              student,
+                              "حضور قداس الجمعة",
+                              _noteController.text,
+                              _selectedDate,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _AttendanceOption(
+                            title: 'اعتذار قداس',
+                            icon: Icons.cancel_presentation_rounded,
+                            color: Colors.red,
+                            onTap: () => _sendAttendance(
+                              context,
+                              ref,
+                              student,
+                              "اعتذار عن قداس الجمعة",
+                              _noteController.text,
+                              _selectedDate,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'تسجيل حضور',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              student.name,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                color: AppTheme.textLightColor,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
-                Expanded(
-                  child: _AttendanceOption(
-                    title: 'حصة',
-                    icon: Icons.school_rounded,
-                    color: Colors.blue,
-                    onTap: () => _sendAttendance(
-                      context,
-                      ref,
-                      student,
-                      "حضور حصة السبت",
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _AttendanceOption(
-                    title: 'اعتذار حصة',
-                    icon: Icons.event_busy_rounded,
-                    color: Colors.orange,
-                    onTap: () => _sendAttendance(
-                      context,
-                      ref,
-                      student,
-                      "اعتذار عن حصة السبت",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _AttendanceOption(
-                    title: 'قداس',
-                    icon: Icons.church_rounded,
-                    color: Colors.purple,
-                    onTap: () => _sendAttendance(
-                      context,
-                      ref,
-                      student,
-                      "حضور قداس الجمعة",
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _AttendanceOption(
-                    title: 'اعتذار قداس',
-                    icon: Icons.cancel_presentation_rounded,
-                    color: Colors.red,
-                    onTap: () => _sendAttendance(
-                      context,
-                      ref,
-                      student,
-                      "اعتذار عن قداس الجمعة",
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -332,8 +423,10 @@ class StudentListScreen extends ConsumerWidget {
     WidgetRef ref,
     StudentEntity student,
     String type,
+    String? note,
+    DateTime? date,
   ) async {
-    Navigator.pop(context); // Close dialog
+    Navigator.pop(context); // Close bottom sheet immediately so user isn't stuck
 
     ScaffoldMessenger.of(
       context,
@@ -344,12 +437,13 @@ class StudentListScreen extends ConsumerWidget {
       student.id,
       student.name,
       type,
+      note ?? "",
+      date ?? DateTime.now(),
     );
 
     if (!context.mounted) return;
 
     if (success) {
-      if (context.mounted) Navigator.pop(context); // Close bottom sheet
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('تم التسجيل بنجاح! ✅'),
@@ -368,6 +462,7 @@ class StudentListScreen extends ConsumerWidget {
     }
   }
 }
+
 
 class _AttendanceOption extends StatelessWidget {
   final String title;
