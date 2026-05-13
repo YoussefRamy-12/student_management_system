@@ -49,84 +49,87 @@ class StudentListScreen extends ConsumerWidget {
         ),
       ),
       body: studentsAsync.when(
-        data: (students) => ListView.separated(
-          padding: const EdgeInsets.all(20),
-          itemCount: students.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final student = students[index];
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
+        data: (students) => RefreshIndicator(
+          onRefresh: () => ref.refresh(studentsListProvider.future),
+          child: ListView.separated(
+            padding: const EdgeInsets.all(20),
+            itemCount: students.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final student = students[index];
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient.withOpacity(0.1),
-                    shape: BoxShape.circle,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  child: Center(
-                    child: Text(
-                      student.name.isNotEmpty ? student.name[0] : "?",
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                  leading: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: AppTheme.primaryGradient.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        student.name.isNotEmpty ? student.name[0] : "?",
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                title: Text(
-                  student.name,
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                  title: Text(
+                    student.name,
+                    style: GoogleFonts.outfit(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                subtitle: Text(
-                  'الصف ${student.grade} • ID: ${student.id}',
-                  style: GoogleFonts.outfit(fontSize: 13),
-                ),
-                trailing: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isAttendanceMode
-                        ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                        : Colors.blue.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+                  subtitle: Text(
+                    'الصف ${student.grade} • ID: ${student.id}',
+                    style: GoogleFonts.outfit(fontSize: 13),
                   ),
-                  child: Icon(
-                    isAttendanceMode
-                        ? Icons.fingerprint_rounded
-                        : Icons.person_rounded,
-                    color: isAttendanceMode
-                        ? AppTheme.primaryColor
-                        : Colors.blue,
+                  trailing: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isAttendanceMode
+                          ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                          : Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      isAttendanceMode
+                          ? Icons.fingerprint_rounded
+                          : Icons.person_rounded,
+                      color: isAttendanceMode
+                          ? AppTheme.primaryColor
+                          : Colors.blue,
+                    ),
                   ),
+                  onTap: isAttendanceMode
+                      ? () => _showAttendanceBottomSheet(context, ref, student)
+                      : () {
+                          // For directory mode, maybe show details or just do nothing for now
+                          _showStudentDetails(context, student);
+                        },
                 ),
-                onTap: isAttendanceMode
-                    ? () => _showAttendanceBottomSheet(context, ref, student)
-                    : () {
-                        // For directory mode, maybe show details or just do nothing for now
-                        _showStudentDetails(context, student);
-                      },
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(

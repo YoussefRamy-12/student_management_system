@@ -122,7 +122,7 @@ class ImportExportScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -179,7 +179,7 @@ class ImportExportScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   style: TextButton.styleFrom(
                     foregroundColor: AppTheme.textLightColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -191,7 +191,7 @@ class ImportExportScreen extends ConsumerWidget {
               Expanded(
                 child: ValueListenableBuilder<TextEditingValue>(
                   valueListenable: controller,
-                  builder: (context, value, child) {
+                  builder: (dialogContext, value, child) {
                     final isEnabled = value.text.trim().isNotEmpty;
                     return ElevatedButton(
                       onPressed: isEnabled
@@ -199,7 +199,7 @@ class ImportExportScreen extends ConsumerWidget {
                               if (formKey.currentState!.validate()) {
                                 final name = controller.text.trim();
                                 _exportData(context, ref, name);
-                                Navigator.pop(context);
+                                Navigator.pop(dialogContext);
                               }
                             }
                           : null,
@@ -253,7 +253,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (context.mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
+          builder: (dialogContext) => AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
@@ -283,7 +283,7 @@ class ImportExportScreen extends ConsumerWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                       _processImport(context, ref, students, isReplace: false);
                     },
                     style: ElevatedButton.styleFrom(
@@ -295,7 +295,7 @@ class ImportExportScreen extends ConsumerWidget {
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(dialogContext);
                       _processImport(context, ref, students, isReplace: true);
                     },
                     style: OutlinedButton.styleFrom(
@@ -310,7 +310,7 @@ class ImportExportScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(dialogContext),
                     child: const Text(
                       'إلغاء',
                       style: TextStyle(color: AppTheme.textLightColor),
@@ -362,7 +362,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (context.mounted) {
         if (success) {
           // Refresh the list provider to show new data
-          final _ = ref.refresh(studentsListProvider);
+          ref.invalidate(studentsListProvider);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('تم الاستيراد بنجاح! ✅'),
