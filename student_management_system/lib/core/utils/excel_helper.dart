@@ -96,7 +96,7 @@ class ExcelHelper {
       // On other platforms, we get the bytes and use FileSaver for a native save dialog
       final fileBytes = excel.save();
       if (fileBytes != null) {
-        await FileSaver.instance.saveFile(
+        await FileSaver.instance.saveAs(
           name: fileName,
           bytes: Uint8List.fromList(fileBytes),
           ext: 'xlsx',
