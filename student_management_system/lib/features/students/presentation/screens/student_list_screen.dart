@@ -4,6 +4,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/entities/student_entity.dart';
 import '../providers/student_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class StudentListScreen extends ConsumerWidget {
   final bool isAttendanceMode;
@@ -111,14 +113,20 @@ class StudentListScreen extends ConsumerWidget {
                           : Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
-                      isAttendanceMode
-                          ? Icons.fingerprint_rounded
-                          : Icons.person_rounded,
-                      color: isAttendanceMode
-                          ? AppTheme.primaryColor
-                          : Colors.blue,
-                    ),
+                    child: isAttendanceMode
+                        ? Icon(Icons.fingerprint_rounded, color: Colors.blue)
+                        : InkWell(
+                            onTap: () => _shareOnWhatsApp(
+                              student.whatsapp,
+                              student.name,
+                              message: "",
+                            ),
+                            child: FaIcon(
+                              FontAwesomeIcons.whatsapp,
+                              color: Colors.green,
+                              size: 30,
+                            ),
+                          ),
                   ),
                   onTap: isAttendanceMode
                       ? () => _showAttendanceBottomSheet(context, ref, student)
@@ -190,10 +198,57 @@ class StudentListScreen extends ConsumerWidget {
             _detailRow(Icons.chat, 'واتساب', student.whatsapp),
             _detailRow(Icons.phone, 'الموبايل', student.phone),
             const SizedBox(height: 24),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap: () => _shareOnWhatsApp(student.whatsapp, student.name),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: FaIcon(
+                      FontAwesomeIcons.whatsapp,
+                      color: AppTheme.presentColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "رسالة افتقاد واتساب",
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _shareOnWhatsApp(
+    String phoneNumber,
+    String name, {
+    String? message,
+  }) async {
+    // Remove any non-digit characters from phone number for WhatsApp format
+    final cleanNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    message ??=
+        "سلام ونعمة من حصة صموئيل النبى. كنا مستنينك النهاردة يا " +
+        name.split(" ")[0] +
+        " افتقدناك النهارده، نتمنى تكون بخير ونشوفك المرة الجاية!🙏";
+    // WhatsApp link format
+    final url = Uri.parse('https://wa.me/+20$cleanNumber?text=$message');
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      // Show an error message if WhatsApp is not installed
+      debugPrint('Could not launch WhatsApp');
+    }
   }
 
   Widget _detailRow(IconData icon, String label, String value) {
@@ -344,7 +399,8 @@ class StudentListScreen extends ConsumerWidget {
                             title: 'حصة',
                             icon: Icons.school_rounded,
                             color: Colors.blue,
-                            isDisabled: _selectedDate.weekday != DateTime.saturday,
+                            isDisabled:
+                                _selectedDate.weekday != DateTime.saturday,
                             onTap: () => _sendAttendance(
                               context,
                               ref,
@@ -381,7 +437,8 @@ class StudentListScreen extends ConsumerWidget {
                             title: 'قداس',
                             icon: Icons.church_rounded,
                             color: Colors.purple,
-                            isDisabled: _selectedDate.weekday != DateTime.friday,
+                            isDisabled:
+                                _selectedDate.weekday != DateTime.friday,
                             onTap: () => _sendAttendance(
                               context,
                               ref,
