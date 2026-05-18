@@ -28,7 +28,24 @@ class StudentListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isAttendanceMode ? 'تسجيل الحضور' : 'سجل الطلاب'),
+        scrolledUnderElevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: AppTheme.primaryGradient,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
+          ),
+        ),
+        title: Text(
+          isAttendanceMode ? 'تسجيل الحضور' : 'سجل الطلاب',
+          style: GoogleFonts.outfit(
+            fontSize: 22,
+            color: Colors.white,
+            letterSpacing: 1.5,
+          ),
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(
@@ -57,91 +74,92 @@ class StudentListScreen extends ConsumerWidget {
           child: ResponsiveContainer(
             maxWidth: 800,
             child: ListView.separated(
-            padding: const EdgeInsets.all(20),
-            itemCount: students.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final student = students[index];
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+              padding: const EdgeInsets.all(20),
+              itemCount: students.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final student = students[index];
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      gradient: AppTheme.primaryGradient.withOpacity(0.1),
-                      shape: BoxShape.circle,
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    child: Center(
-                      child: Text(
-                        student.name.isNotEmpty ? student.name[0] : "?",
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                    leading: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          student.name.isNotEmpty ? student.name[0] : "?",
+                          style: const TextStyle(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  title: Text(
-                    student.name,
-                    style: GoogleFonts.outfit(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                    title: Text(
+                      student.name,
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    'الصف ${student.grade} • ID: ${student.id}',
-                    style: GoogleFonts.outfit(fontSize: 13),
-                  ),
-                  trailing: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isAttendanceMode
-                          ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                          : Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                    subtitle: Text(
+                      'الصف ${student.grade} • ID: ${student.id}',
+                      style: GoogleFonts.outfit(fontSize: 13),
                     ),
-                    child: isAttendanceMode
-                        ? Icon(Icons.fingerprint_rounded, color: Colors.blue)
-                        : InkWell(
-                            onTap: () => _shareOnWhatsApp(
-                              student.whatsapp,
-                              student.name,
-                              message: "",
+                    trailing: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: isAttendanceMode
+                            ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                            : Colors.blue.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: isAttendanceMode
+                          ? Icon(Icons.fingerprint_rounded, color: Colors.blue)
+                          : InkWell(
+                              onTap: () => _shareOnWhatsApp(
+                                student.whatsapp,
+                                student.name,
+                                message: "",
+                              ),
+                              child: FaIcon(
+                                FontAwesomeIcons.whatsapp,
+                                color: Colors.green,
+                                size: 30,
+                              ),
                             ),
-                            child: FaIcon(
-                              FontAwesomeIcons.whatsapp,
-                              color: Colors.green,
-                              size: 30,
-                            ),
-                          ),
+                    ),
+                    onTap: isAttendanceMode
+                        ? () =>
+                              _showAttendanceBottomSheet(context, ref, student)
+                        : () {
+                            // For directory mode, maybe show details or just do nothing for now
+                            _showStudentDetails(context, student);
+                          },
                   ),
-                  onTap: isAttendanceMode
-                      ? () => _showAttendanceBottomSheet(context, ref, student)
-                      : () {
-                          // For directory mode, maybe show details or just do nothing for now
-                          _showStudentDetails(context, student);
-                        },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
@@ -209,7 +227,8 @@ class StudentListScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () => _shareOnWhatsApp(student.whatsapp, student.name),
+                    onTap: () =>
+                        _shareOnWhatsApp(student.whatsapp, student.name),
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -266,9 +285,7 @@ class StudentListScreen extends ConsumerWidget {
           Icon(icon, size: 20, color: AppTheme.primaryColor),
           const SizedBox(width: 12),
           Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(
-            child: Text(value, overflow: TextOverflow.ellipsis),
-          ),
+          Expanded(child: Text(value, overflow: TextOverflow.ellipsis)),
         ],
       ),
     );

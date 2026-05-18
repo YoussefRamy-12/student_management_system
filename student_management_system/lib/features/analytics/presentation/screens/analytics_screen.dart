@@ -30,51 +30,51 @@ class AnalyticsScreen extends ConsumerWidget {
                     children: [
                       _buildStatCardsGrid(snapshot, context),
                       const SizedBox(height: 24),
-                  _buildActivityTable(snapshot),
-                  const SizedBox(height: 24),
-                  _buildPieChart(snapshot),
-                  const SizedBox(height: 24),
-                  _buildAttendanceRateBar(
-                    'نسبة حضور الحصة',
-                    snapshot.classAttendanceRate,
-                    Colors.blue,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildAttendanceRateBar(
-                    'نسبة حضور القداس',
-                    snapshot.massAttendanceRate,
-                    Colors.purple,
-                  ),
-                  const SizedBox(height: 24),
-                  if (snapshot.absentMassNoExcuse.isNotEmpty)
-                    _buildWarningBanner(
-                      'اللي ماجوش قداس منغير عذر (${snapshot.absentMassNoExcuse.length})',
-                      Colors.amber,
-                      Icons.warning_rounded,
-                    ),
-                  if (snapshot.absentClassNoExcuse.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    _buildWarningBanner(
-                      'اللي ماحضروش حصة منغير عذر (${snapshot.absentClassNoExcuse.length})',
-                      Colors.orange,
-                      Icons.warning_amber_rounded,
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  _buildExcuseTable(
-                    'اعذار القداس',
-                    snapshot.massExcuseRecords,
-                    Colors.purple,
-                    context,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildExcuseTable(
-                    'اعذار الحصة',
-                    snapshot.classExcuseRecords,
-                    Colors.blue,
-                    context,
-                  ),
-                  const SizedBox(height: 40),
+                      _buildActivityTable(snapshot),
+                      const SizedBox(height: 24),
+                      _buildPieChart(snapshot),
+                      const SizedBox(height: 24),
+                      _buildAttendanceRateBar(
+                        'نسبة حضور الحصة',
+                        snapshot.classAttendanceRate,
+                        Colors.blue,
+                      ),
+                      const SizedBox(height: 12),
+                      _buildAttendanceRateBar(
+                        'نسبة حضور القداس',
+                        snapshot.massAttendanceRate,
+                        Colors.purple,
+                      ),
+                      const SizedBox(height: 24),
+                      if (snapshot.absentMassNoExcuse.isNotEmpty)
+                        _buildWarningBanner(
+                          'اللي ماجوش قداس منغير عذر (${snapshot.absentMassNoExcuse.length})',
+                          Colors.amber,
+                          Icons.warning_rounded,
+                        ),
+                      if (snapshot.absentClassNoExcuse.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        _buildWarningBanner(
+                          'اللي ماحضروش حصة منغير عذر (${snapshot.absentClassNoExcuse.length})',
+                          Colors.orange,
+                          Icons.warning_amber_rounded,
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      _buildExcuseTable(
+                        'اعذار القداس',
+                        snapshot.massExcuseRecords,
+                        Colors.purple,
+                        context,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildExcuseTable(
+                        'اعذار الحصة',
+                        snapshot.classExcuseRecords,
+                        Colors.blue,
+                        context,
+                      ),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -109,8 +109,11 @@ class AnalyticsScreen extends ConsumerWidget {
   Widget _buildAppBar(BuildContext context, WidgetRef ref, DateTime date) {
     return SliverAppBar(
       expandedHeight: 190,
-      floating: false,
-      pinned: true,
+      floating: true,
+      snap: true,
+      pinned: false,
+
+      // backgroundColor: AppTheme.primaryColor,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
@@ -143,108 +146,108 @@ class AnalyticsScreen extends ConsumerWidget {
                         children: [
                           Text(
                             '📊 التحليلات',
-                          style: GoogleFonts.outfit(
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          "يوم: ${_getDayName(date.weekday)}",
-                          style: GoogleFonts.outfit(
-                            fontSize: 15,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 8,
-                      children: [
-                        InkWell(
-                          onTap: () => _pickDate(context, ref, date),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
+                            style: GoogleFonts.outfit(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
+                          ),
+                          const Spacer(),
+                          Text(
+                            "يوم: ${_getDayName(date.weekday)}",
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today_rounded,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 15,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        children: [
+                          InkWell(
+                            onTap: () => _pickDate(context, ref, date),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today_rounded,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w600,
+                                    size: 18,
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.white,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            ref
-                                .read(selectedAnalyticsDateProvider.notifier)
-                                .updateDate(DateTime.now());
-                          },
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today_rounded,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "النهارده",
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 15,
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.arrow_drop_down,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w600,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          InkWell(
+                            onTap: () {
+                              ref
+                                  .read(selectedAnalyticsDateProvider.notifier)
+                                  .updateDate(DateTime.now());
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "النهارده",
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               ),
             ],
           ),

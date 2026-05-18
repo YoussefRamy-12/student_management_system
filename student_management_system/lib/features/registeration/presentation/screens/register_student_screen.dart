@@ -91,7 +91,10 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("تسجيل طالب جديد")),
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        title: const Text("تسجيل طالب جديد"),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: ResponsiveContainer(
@@ -99,132 +102,135 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSectionHeader("المعلومات الأساسية"),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "الاسم بالكامل",
-                  prefixIcon: Icon(Icons.person_outline_rounded),
-                ),
-                onSaved: (val) => _name = val!,
-                validator: (val) => val!.isEmpty ? "برجاء ادخال الاسم" : null,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _grade,
-                      decoration: const InputDecoration(
-                        labelText: "المرحلة",
-                        prefixIcon: Icon(Icons.school_outlined),
-                      ),
-                      items: ['4', '5', '6']
-                          .map(
-                            (g) => DropdownMenuItem(
-                              value: g,
-                              child: Text("صف $g"),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (val) => setState(() => _grade = val!),
-                      validator: (val) => val == null ? "مطلوب" : null,
-                    ),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSectionHeader("المعلومات الأساسية"),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "الاسم بالكامل",
+                    prefixIcon: Icon(Icons.person_outline_rounded),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _diacon,
-                      decoration: const InputDecoration(
-                        labelText: "الحالة",
-                        prefixIcon: Icon(Icons.auto_awesome_outlined),
+                  onSaved: (val) => _name = val!,
+                  validator: (val) => val!.isEmpty ? "برجاء ادخال الاسم" : null,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _grade,
+                        decoration: const InputDecoration(
+                          labelText: "المرحلة",
+                          prefixIcon: Icon(Icons.school_outlined),
+                        ),
+                        items: ['4', '5', '6']
+                            .map(
+                              (g) => DropdownMenuItem(
+                                value: g,
+                                child: Text("صف $g"),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) => setState(() => _grade = val!),
+                        validator: (val) => val == null ? "مطلوب" : null,
                       ),
-                      items: [
-                        const DropdownMenuItem(
-                          value: "نعم",
-                          child: Text("نعم"),
-                        ),
-                        const DropdownMenuItem(value: "لا", child: Text("لا")),
-                        const DropdownMenuItem(
-                          value: "بنت",
-                          child: Text("بنت"),
-                        ),
-                      ],
-                      onChanged: (val) => setState(() => _diacon = val!),
-                      validator: (val) => val == null ? "مطلوب" : null,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              _buildSectionHeader("معلومات الاتصال"),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "العنوان",
-                  prefixIcon: Icon(Icons.location_on_outlined),
-                ),
-                onSaved: (val) => _address = val!,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "رقم الواتساب",
-                  prefixIcon: Icon(Icons.chat_outlined),
-                ),
-                keyboardType: TextInputType.phone,
-                validator: _validatePhone,
-                onSaved: (val) => _whatsapp = val!,
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "رقم التليفون",
-                  prefixIcon: Icon(Icons.phone_outlined),
-                ),
-                keyboardType: TextInputType.phone,
-                validator: _validatePhone,
-                onSaved: (val) => _phone = val!,
-              ),
-              const SizedBox(height: 32),
-              _buildSectionHeader("إضافات"),
-              const SizedBox(height: 16),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "ملحوظات",
-                  prefixIcon: Icon(Icons.note_alt_outlined),
-                ),
-                maxLines: 3,
-                onSaved: (val) => _notes = val!,
-              ),
-              const SizedBox(height: 40),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: _diacon,
+                        decoration: const InputDecoration(
+                          labelText: "الحالة",
+                          prefixIcon: Icon(Icons.auto_awesome_outlined),
+                        ),
+                        items: [
+                          const DropdownMenuItem(
+                            value: "نعم",
+                            child: Text("نعم"),
+                          ),
+                          const DropdownMenuItem(
+                            value: "لا",
+                            child: Text("لا"),
+                          ),
+                          const DropdownMenuItem(
+                            value: "بنت",
+                            child: Text("بنت"),
+                          ),
+                        ],
+                        onChanged: (val) => setState(() => _diacon = val!),
+                        validator: (val) => val == null ? "مطلوب" : null,
+                      ),
                     ),
                   ],
                 ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
+                const SizedBox(height: 32),
+                _buildSectionHeader("معلومات الاتصال"),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "العنوان",
+                    prefixIcon: Icon(Icons.location_on_outlined),
                   ),
-                  onPressed: _submit,
-                  child: const Text("حفظ البيانات"),
+                  onSaved: (val) => _address = val!,
                 ),
-              ),
-              const SizedBox(height: 40),
-            ],
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "رقم الواتساب",
+                    prefixIcon: Icon(Icons.chat_outlined),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: _validatePhone,
+                  onSaved: (val) => _whatsapp = val!,
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "رقم التليفون",
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: _validatePhone,
+                  onSaved: (val) => _phone = val!,
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader("إضافات"),
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: "ملحوظات",
+                    prefixIcon: Icon(Icons.note_alt_outlined),
+                  ),
+                  maxLines: 3,
+                  onSaved: (val) => _notes = val!,
+                ),
+                const SizedBox(height: 40),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.primaryGradient,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                    ),
+                    onPressed: _submit,
+                    child: const Text("حفظ البيانات"),
+                  ),
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );

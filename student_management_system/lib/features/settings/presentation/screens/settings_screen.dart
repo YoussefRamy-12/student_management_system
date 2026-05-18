@@ -8,9 +8,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('الإعدادات'),
-      ),
+      appBar: AppBar(scrolledUnderElevation: 0, title: const Text('الإعدادات')),
       body: ResponsiveContainer(
         maxWidth: 700,
         child: ListView(

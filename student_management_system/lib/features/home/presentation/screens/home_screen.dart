@@ -172,7 +172,7 @@ class HomeScreen extends StatelessWidget {
     return SliverAppBar(
       expandedHeight: 200,
       floating: false,
-      pinned: true,
+      pinned: false,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
