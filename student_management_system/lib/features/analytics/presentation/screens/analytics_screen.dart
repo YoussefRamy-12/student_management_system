@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:student_management_system/features/students/presentation/providers/student_provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../analytics/data/models/analytics_model.dart';
 import '../../../../core/l10n/app_localizations.dart';
@@ -18,100 +19,129 @@ class AnalyticsScreen extends ConsumerWidget {
     final l10n = ref.watch(appLocalizationsProvider);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(context, ref, selectedDate, l10n),
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: analyticsAsync.when(
-              data: (snapshot) => SliverToBoxAdapter(
-                child: ResponsiveContainer(
-                  maxWidth: 900,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _buildStatCardsGrid(snapshot, context, l10n),
-                      const SizedBox(height: 24),
-                      _buildActivityTable(snapshot, l10n),
-                      const SizedBox(height: 24),
-                      _buildPieChart(snapshot, l10n),
-                      const SizedBox(height: 24),
-                      _buildAttendanceRateBar(
-                        l10n.classAttendanceRate,
-                        snapshot.classAttendanceRate,
-                        Colors.blue,
-                      ),
-                      const SizedBox(height: 12),
-                      _buildAttendanceRateBar(
-                        l10n.theDivineLiturgyAttendanceRate,
-                        snapshot.theDivineLiturgyAttendanceRate,
-                        Colors.purple,
-                      ),
-                      const SizedBox(height: 24),
-                      if (snapshot.absentTheDivineLiturgyNoExcuse.isNotEmpty)
-                        _buildWarningBanner(
-                          l10n.absentTheDivineLiturgyWarning(
-                            snapshot.absentTheDivineLiturgyNoExcuse.length,
-                          ),
-                          Colors.amber,
-                          Icons.warning_rounded,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(attendanceRecordsProvider);
+          ref.invalidate(studentsListProvider);
+          try {
+            await ref.read(attendanceRecordsProvider.future);
+            await ref.read(studentsListProvider.future);
+          } catch (_) {}
+        },
+        child: CustomScrollView(
+          slivers: [
+            _buildAppBar(context, ref, selectedDate, l10n),
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: analyticsAsync.when(
+                data: (snapshot) => SliverToBoxAdapter(
+                  child: ResponsiveContainer(
+                    maxWidth: 900,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildStatCardsGrid(snapshot, context, l10n),
+                        const SizedBox(height: 24),
+                        _buildActivityTable(snapshot, l10n),
+                        const SizedBox(height: 24),
+                        _buildPieChart(snapshot, l10n),
+                        const SizedBox(height: 24),
+                        _buildAttendanceRateBar(
+                          l10n.classAttendanceRate,
+                          snapshot.classAttendanceRate,
+                          Colors.blue,
                         ),
-                      if (snapshot.absentClassNoExcuse.isNotEmpty) ...[
                         const SizedBox(height: 12),
-                        _buildWarningBanner(
-                          l10n.absentClassWarning(
-                            snapshot.absentClassNoExcuse.length,
+                        _buildAttendanceRateBar(
+                          l10n.theDivineLiturgyAttendanceRate,
+                          snapshot.theDivineLiturgyAttendanceRate,
+                          Colors.purple,
+                        ),
+                        const SizedBox(height: 24),
+                        if (snapshot.absentTheDivineLiturgyNoExcuse.isNotEmpty)
+                          _buildWarningBanner(
+                            l10n.absentTheDivineLiturgyWarning(
+                              snapshot.absentTheDivineLiturgyNoExcuse.length,
+                            ),
+                            Colors.amber,
+                            Icons.warning_rounded,
                           ),
-                          Colors.orange,
-                          Icons.warning_amber_rounded,
+                        if (snapshot.absentClassNoExcuse.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildWarningBanner(
+                            l10n.absentClassWarning(
+                              snapshot.absentClassNoExcuse.length,
+                            ),
+                            Colors.orange,
+                            Icons.warning_amber_rounded,
+                          ),
+                        ],
+                        const SizedBox(height: 24),
+                        _buildExcuseAndPresentTable(
+                          l10n.theDivineLiturgyPresentsTitle,
+                          l10n.noPresents,
+                          snapshot.theDivineLiturgyPresentRecords,
+                          Colors.green,
+                          context,
+                          l10n,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildExcuseAndPresentTable(
+                          l10n.theDivineLiturgyExcusesTitle,
+                          l10n.noExcuses,
+                          snapshot.theDivineLiturgyExcuseRecords,
+                          Colors.purple,
+                          context,
+                          l10n,
+                        ),
+                        const SizedBox(height: 40),
+                        _buildExcuseAndPresentTable(
+                          l10n.classPresentTitle,
+                          l10n.noPresents,
+                          snapshot.classPresentRecords,
+                          Colors.green,
+                          context,
+                          l10n,
+                        ),
+                        const SizedBox(height: 20),
+                        _buildExcuseAndPresentTable(
+                          l10n.classExcusesTitle,
+                          l10n.noExcuses,
+                          snapshot.classExcuseRecords,
+                          Colors.blue,
+                          context,
+                          l10n,
                         ),
                       ],
-                      const SizedBox(height: 24),
-                      _buildExcuseTable(
-                        l10n.theDivineLiturgyExcusesTitle,
-                        snapshot.theDivineLiturgyExcuseRecords,
-                        Colors.purple,
-                        context,
-                        l10n,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildExcuseTable(
-                        l10n.classExcusesTitle,
-                        snapshot.classExcuseRecords,
-                        Colors.blue,
-                        context,
-                        l10n,
-                      ),
-                      const SizedBox(height: 40),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              loading: () => const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (err, _) => SliverFillRemaining(
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 48,
-                        color: Colors.red,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        l10n.errorOccurred(err.toString()),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                loading: () => const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (err, _) => SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.errorOccurred(err.toString()),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -128,6 +158,17 @@ class AnalyticsScreen extends ConsumerWidget {
       floating: true,
       snap: true,
       pinned: false,
+      automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          iconSize: 35,
+          style: IconButton.styleFrom(foregroundColor: Colors.white),
+          icon: const Icon(Icons.home_rounded),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
 
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
@@ -669,8 +710,9 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // ───────────── EXCUSE TABLE ─────────────
-  Widget _buildExcuseTable(
+  Widget _buildExcuseAndPresentTable(
     String title,
+    String emptyMessage,
     List<AttendanceRecord> records,
     Color headerColor,
     BuildContext context,
@@ -773,7 +815,7 @@ class AnalyticsScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                l10n.noExcuses,
+                emptyMessage,
                 style: GoogleFonts.outfit(color: AppTheme.textLightColor),
               ),
             )

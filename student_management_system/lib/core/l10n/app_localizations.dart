@@ -227,7 +227,11 @@ class AppLocalizations {
   String get theDivineLiturgyExcusesTitle =>
       isEn ? 'The Divine Liturgy Excuses' : 'اعذار القداس';
   String get classExcusesTitle => isEn ? 'Class Excuses' : 'اعذار الحصة';
+  String get theDivineLiturgyPresentsTitle =>
+      isEn ? 'The Divine Liturgy Presents' : 'حضور القداس';
+  String get classPresentTitle => isEn ? 'Class Presents' : 'حضور الحصة';
   String get noExcuses => isEn ? 'No excuses' : 'لا توجد اعتذارات';
+  String get noPresents => isEn ? 'No presents' : 'لا يوجد حضور';
   String get excuseDetails => isEn ? 'Excuse Details' : 'تفاصيل الاعتذار';
   String get student => isEn ? 'Student' : 'الطالب';
 

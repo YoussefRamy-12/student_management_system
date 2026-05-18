@@ -42,6 +42,8 @@ class AnalyticsSnapshot {
   final List<StudentEntity> absentClassNoExcuse;
   final List<AttendanceRecord> theDivineLiturgyExcuseRecords;
   final List<AttendanceRecord> classExcuseRecords;
+  final List<AttendanceRecord> classPresentRecords;
+  final List<AttendanceRecord> theDivineLiturgyPresentRecords;
   final Map<String, int> activityCounts;
 
   AnalyticsSnapshot({
@@ -56,6 +58,8 @@ class AnalyticsSnapshot {
     required this.absentClassNoExcuse,
     required this.theDivineLiturgyExcuseRecords,
     required this.classExcuseRecords,
+    required this.classPresentRecords,
+    required this.theDivineLiturgyPresentRecords,
     required this.activityCounts,
   });
 }
@@ -126,6 +130,14 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
             .where((r) => r.type == 'اعتذار عن حصة السبت')
             .toList();
 
+        // Present records for detail tables
+        final classPresentRecords = records
+            .where((r) => r.type == 'حضور حصة السبت')
+            .toList();
+        final theDivineLiturgyPresentRecords = records
+            .where((r) => r.type == 'حضور قداس الجمعة')
+            .toList();
+
         return AsyncValue.data(
           AnalyticsSnapshot(
             totalRegistered: total,
@@ -142,6 +154,8 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
             theDivineLiturgyExcuseRecords: theDivineLiturgyExcuseRecords,
             classExcuseRecords: classExcuseRecords,
             activityCounts: activityCounts,
+            classPresentRecords: classPresentRecords,
+            theDivineLiturgyPresentRecords: theDivineLiturgyPresentRecords,
           ),
         );
       },

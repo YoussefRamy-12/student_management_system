@@ -83,7 +83,6 @@ class StudentListScreen extends ConsumerWidget {
                 final student = students[index];
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -93,73 +92,80 @@ class StudentListScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    leading: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        gradient: AppTheme.primaryGradient.withOpacity(0.1),
-                        shape: BoxShape.circle,
+                  child: Material(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      child: Center(
-                        child: Text(
-                          student.name.isNotEmpty ? student.name[0] : "?",
-                          style: const TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                      leading: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          gradient: AppTheme.primaryGradient.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            student.name.isNotEmpty ? student.name[0] : "?",
+                            style: const TextStyle(
+                              color: AppTheme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    title: Text(
-                      student.name,
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      title: Text(
+                        student.name,
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                    subtitle: Text(
-                      '${l10n.grade} ${student.grade} • ID: ${student.id}',
-                      style: GoogleFonts.outfit(fontSize: 13),
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isAttendanceMode
-                            ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                            : Colors.blue.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                      subtitle: Text(
+                        '${l10n.grade} ${student.grade} • ID: ${student.id}',
+                        style: GoogleFonts.outfit(fontSize: 13),
                       ),
-                      child: isAttendanceMode
-                          ? Icon(Icons.fingerprint_rounded, color: Colors.blue)
-                          : InkWell(
-                              onTap: () => _shareOnWhatsApp(
-                                student.whatsapp,
-                                student.name,
-                                message: l10n.whatsappMessage(student.name),
+                      trailing: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isAttendanceMode
+                              ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                              : Colors.blue.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: isAttendanceMode
+                            ? Icon(
+                                Icons.fingerprint_rounded,
+                                color: Colors.blue,
+                              )
+                            : InkWell(
+                                onTap: () => _shareOnWhatsApp(
+                                  student.whatsapp,
+                                  student.name,
+                                  message: l10n.whatsappMessage(student.name),
+                                ),
+                                child: FaIcon(
+                                  FontAwesomeIcons.whatsapp,
+                                  color: Colors.green,
+                                  size: 30,
+                                ),
                               ),
-                              child: FaIcon(
-                                FontAwesomeIcons.whatsapp,
-                                color: Colors.green,
-                                size: 30,
-                              ),
-                            ),
+                      ),
+                      onTap: isAttendanceMode
+                          ? () => _showAttendanceBottomSheet(
+                              context,
+                              ref,
+                              student,
+                              l10n,
+                            )
+                          : () {
+                              _showStudentDetails(context, student, l10n);
+                            },
                     ),
-                    onTap: isAttendanceMode
-                        ? () => _showAttendanceBottomSheet(
-                            context,
-                            ref,
-                            student,
-                            l10n,
-                          )
-                        : () {
-                            _showStudentDetails(context, student, l10n);
-                          },
                   ),
                 );
               },
@@ -314,207 +320,12 @@ class StudentListScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       constraints: const BoxConstraints(maxWidth: 650),
-      builder: (context) {
-        final _noteController = TextEditingController();
-        DateTime _selectedDate = DateTime.now();
-
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Container(
-              padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 24,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.recordAttendance,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      student.name,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        color: AppTheme.textLightColor,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    InkWell(
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                          builder: (context, child) {
-                            return Theme(
-                              data: Theme.of(context).copyWith(
-                                colorScheme: const ColorScheme.light(
-                                  primary: AppTheme.primaryColor,
-                                  onPrimary: Colors.white,
-                                  onSurface: AppTheme.textDarkColor,
-                                ),
-                              ),
-                              child: child!,
-                            );
-                          },
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _selectedDate = pickedDate;
-                          });
-                        }
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: l10n.attendanceDate,
-                          labelStyle: GoogleFonts.outfit(),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}",
-                              style: GoogleFonts.outfit(fontSize: 16),
-                            ),
-                            const Icon(
-                              Icons.calendar_month_rounded,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _noteController,
-                      decoration: InputDecoration(
-                        labelText: l10n.notesOptional,
-                        labelStyle: GoogleFonts.outfit(),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                      ),
-                      maxLines: 1,
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _AttendanceOption(
-                            title: l10n.classLabel,
-                            icon: Icons.school_rounded,
-                            color: Colors.blue,
-                            isDisabled:
-                                _selectedDate.weekday != DateTime.saturday,
-                            onTap: () => _sendAttendance(
-                              context,
-                              ref,
-                              student,
-                              "حضور حصة السبت",
-                              _noteController.text,
-                              _selectedDate,
-                              l10n,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _AttendanceOption(
-                            title: l10n.classExcuse,
-                            icon: Icons.event_busy_rounded,
-                            color: Colors.orange,
-                            onTap: () => _sendAttendance(
-                              context,
-                              ref,
-                              student,
-                              "اعتذار عن حصة السبت",
-                              _noteController.text,
-                              _selectedDate,
-                              l10n,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _AttendanceOption(
-                            title: l10n.theDivineLiturgyLabel,
-                            icon: Icons.church_rounded,
-                            color: Colors.purple,
-                            isDisabled:
-                                _selectedDate.weekday != DateTime.friday,
-                            onTap: () => _sendAttendance(
-                              context,
-                              ref,
-                              student,
-                              "حضور قداس الجمعة",
-                              _noteController.text,
-                              _selectedDate,
-                              l10n,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _AttendanceOption(
-                            title: l10n.theDivineLiturgyExcuse,
-                            icon: Icons.cancel_presentation_rounded,
-                            color: Colors.red,
-                            onTap: () => _sendAttendance(
-                              context,
-                              ref,
-                              student,
-                              "اعتذار عن قداس الجمعة",
-                              _noteController.text,
-                              _selectedDate,
-                              l10n,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
+      builder: (sheetContext) {
+        return _AttendanceBottomSheet(
+          student: student,
+          l10n: l10n,
+          onSendAttendance: (type, note, date) {
+            _sendAttendance(sheetContext, ref, student, type, note, date, l10n);
           },
         );
       },
@@ -566,6 +377,224 @@ class StudentListScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+class _AttendanceBottomSheet extends StatefulWidget {
+  final StudentEntity student;
+  final AppLocalizations l10n;
+  final void Function(String type, String? note, DateTime? date)
+  onSendAttendance;
+
+  const _AttendanceBottomSheet({
+    required this.student,
+    required this.l10n,
+    required this.onSendAttendance,
+  });
+
+  @override
+  State<_AttendanceBottomSheet> createState() => _AttendanceBottomSheetState();
+}
+
+class _AttendanceBottomSheetState extends State<_AttendanceBottomSheet> {
+  late final TextEditingController _noteController;
+  late DateTime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _noteController = TextEditingController();
+    _selectedDate = DateTime.now();
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final student = widget.student;
+    final l10n = widget.l10n;
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      ),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              l10n.recordAttendance,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              student.name,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 16,
+                color: AppTheme.textLightColor,
+              ),
+            ),
+            const SizedBox(height: 24),
+            InkWell(
+              onTap: () async {
+                final pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: const ColorScheme.light(
+                          primary: AppTheme.primaryColor,
+                          onPrimary: Colors.white,
+                          onSurface: AppTheme.textDarkColor,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (pickedDate != null) {
+                  setState(() {
+                    _selectedDate = pickedDate;
+                  });
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.attendanceDate,
+                  labelStyle: GoogleFonts.outfit(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}",
+                      style: GoogleFonts.outfit(fontSize: 16),
+                    ),
+                    const Icon(
+                      Icons.calendar_month_rounded,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _noteController,
+              decoration: InputDecoration(
+                labelText: l10n.notesOptional,
+                labelStyle: GoogleFonts.outfit(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Colors.grey.shade50,
+              ),
+              maxLines: 1,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: _AttendanceOption(
+                    title: l10n.classLabel,
+                    icon: Icons.school_rounded,
+                    color: Colors.blue,
+                    isDisabled: _selectedDate.weekday != DateTime.saturday,
+                    onTap: () => widget.onSendAttendance(
+                      "حضور حصة السبت",
+                      _noteController.text,
+                      _selectedDate,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _AttendanceOption(
+                    title: l10n.classExcuse,
+                    icon: Icons.event_busy_rounded,
+                    color: Colors.orange,
+                    onTap: () => widget.onSendAttendance(
+                      "اعتذار عن حصة السبت",
+                      _noteController.text,
+                      _selectedDate,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _AttendanceOption(
+                    title: l10n.theDivineLiturgyLabel,
+                    icon: Icons.church_rounded,
+                    color: Colors.purple,
+                    isDisabled: _selectedDate.weekday != DateTime.friday,
+                    onTap: () => widget.onSendAttendance(
+                      "حضور قداس الجمعة",
+                      _noteController.text,
+                      _selectedDate,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _AttendanceOption(
+                    title: l10n.theDivineLiturgyExcuse,
+                    icon: Icons.cancel_presentation_rounded,
+                    color: Colors.red,
+                    onTap: () => widget.onSendAttendance(
+                      "اعتذار عن قداس الجمعة",
+                      _noteController.text,
+                      _selectedDate,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

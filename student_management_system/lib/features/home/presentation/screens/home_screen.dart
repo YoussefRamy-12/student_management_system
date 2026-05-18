@@ -72,13 +72,13 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: l10n.settings,
-                  subtitle: l10n.settingsSub,
-                  icon: Icons.settings_suggest_rounded,
-                  color: Colors.orange.shade400,
+                  title: l10n.analytics,
+                  subtitle: l10n.analyticsSub,
+                  icon: Icons.analytics_rounded,
+                  color: Colors.deepPurple.shade400,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
                   ),
                 ),
                 _ActionCard(
@@ -94,13 +94,13 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: l10n.analytics,
-                  subtitle: l10n.analyticsSub,
-                  icon: Icons.analytics_rounded,
-                  color: Colors.deepPurple.shade400,
+                  title: l10n.settings,
+                  subtitle: l10n.settingsSub,
+                  icon: Icons.settings_suggest_rounded,
+                  color: Colors.orange.shade400,
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AnalyticsScreen()),
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
                   ),
                 ),
               ]),
