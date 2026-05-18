@@ -14,9 +14,9 @@ class StudentListScreen extends ConsumerWidget {
 
   void search(WidgetRef ref, String value) {
     if (value.isEmpty) {
-      ref.read(studentSearchQueryProvider.notifier).state = "";
+      ref.read(studentSearchQueryProvider.notifier).updateQuery("");
     } else {
-      ref.read(studentSearchQueryProvider.notifier).state = value;
+      ref.read(studentSearchQueryProvider.notifier).updateQuery(value);
     }
   }
 

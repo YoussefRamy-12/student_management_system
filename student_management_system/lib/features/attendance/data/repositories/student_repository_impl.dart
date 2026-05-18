@@ -1,4 +1,5 @@
 import '../../../../core/entities/student_entity.dart';
+import '../../../analytics/data/models/analytics_model.dart';
 import '../../domain/repositories/i_student_repository.dart';
 import '../datasources/attendance_remote_datasource.dart';
 
@@ -43,5 +44,10 @@ class StudentRepositoryImpl implements IStudentRepository {
   @override
   Future<bool> clearAllStudents() async {
     return await remoteDataSource.clearAllStudents();
+  }
+
+  @override
+  Future<List<AttendanceRecord>> getAttendanceByDate(String date) async {
+    return await remoteDataSource.getAttendanceByDate(date);
   }
 }

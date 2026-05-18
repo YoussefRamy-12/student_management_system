@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/entities/student_entity.dart';
 import '../../../../core/models/student.dart';
+import '../../../analytics/data/models/analytics_model.dart';
 
 abstract class IAttendanceRemoteDataSource {
   Future<List<StudentModel>> getStudents();
@@ -17,6 +18,7 @@ abstract class IAttendanceRemoteDataSource {
   Future<bool> registerStudent(StudentEntity student);
   Future<bool> bulkRegisterStudents(List<StudentEntity> students);
   Future<bool> clearAllStudents();
+  Future<List<AttendanceRecord>> getAttendanceByDate(String date);
 }
 
 class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
@@ -192,6 +194,58 @@ class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
     } catch (e) {
       debugPrint("Clear Error: $e");
       return false;
+    }
+  }
+
+  @override
+  Future<List<AttendanceRecord>> getAttendanceByDate(String date) async {
+    try {
+      debugPrint("Fetching analytics for date: $date");
+
+      final response = await http.post(
+        Uri.parse(_url),
+        headers: {'Content-Type': 'text/plain'},
+        body: jsonEncode({
+          "action": "GET_ANALYTICS",
+          "data": {"date": date},
+        }),
+      );
+
+      debugPrint("Analytics Response Code: ${response.statusCode}");
+      debugPrint("Analytics Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body);
+        if (result['status'] == 'success') {
+          final List<dynamic> recordsJson = result['data']['records'] ?? [];
+          debugPrint("Analytics Records Count: ${recordsJson.length}");
+          return recordsJson
+              .map((r) => AttendanceRecord.fromJson(r as Map<String, dynamic>))
+              .toList();
+        } else {
+          debugPrint("Analytics status not success: ${result['status']}");
+        }
+      } else if (response.statusCode == 302) {
+        // Fallback for environments where automatic redirect following is disabled
+        final redirectUrl = response.headers['location'];
+        if (redirectUrl != null) {
+          final redirectResponse = await http.get(Uri.parse(redirectUrl));
+          if (redirectResponse.statusCode == 200) {
+            final result = jsonDecode(redirectResponse.body);
+            if (result['status'] == 'success') {
+              final List<dynamic> recordsJson = result['data']['records'] ?? [];
+              return recordsJson
+                  .map((r) => AttendanceRecord.fromJson(r as Map<String, dynamic>))
+                  .toList();
+            }
+          }
+        }
+      }
+
+      return [];
+    } catch (e) {
+      debugPrint("Analytics Error: $e");
+      return [];
     }
   }
 }

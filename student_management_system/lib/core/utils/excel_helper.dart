@@ -99,7 +99,7 @@ class ExcelHelper {
         await FileSaver.instance.saveAs(
           name: fileName,
           bytes: Uint8List.fromList(fileBytes),
-          ext: 'xlsx',
+          fileExtension: 'xlsx',
           mimeType: MimeType.microsoftExcel,
         );
       }
@@ -133,7 +133,9 @@ class ExcelHelper {
 
         // Name is usually in column 1, but if it's empty, check column 0
         String name = col1.isNotEmpty ? col1 : col0;
-        String id = col1.isNotEmpty ? col0 : ""; // If name was in col0, id is unknown
+        String id = col1.isNotEmpty
+            ? col0
+            : ""; // If name was in col0, id is unknown
 
         if (name.isNotEmpty) {
           students.add(

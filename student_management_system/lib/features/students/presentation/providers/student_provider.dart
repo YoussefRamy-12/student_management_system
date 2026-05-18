@@ -30,24 +30,35 @@ final studentsListProvider = FutureProvider<List<StudentEntity>>((ref) {
 
 // --- Search Implementation ---
 
+class StudentSearchQueryNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void updateQuery(String query) {
+    state = query;
+  }
+}
+
 /// Provider to hold the current search query
-final studentSearchQueryProvider = StateProvider.autoDispose<String>((ref) => '');
+final studentSearchQueryProvider =
+    NotifierProvider.autoDispose<StudentSearchQueryNotifier, String>(
+  StudentSearchQueryNotifier.new,
+);
 
 /// Provider to return filtered students based on ID
-final filteredStudentsProvider = Provider.autoDispose<AsyncValue<List<StudentEntity>>>((
-  ref,
-) {
-  final studentsAsync = ref.watch(studentsListProvider);
-  final query = ref.watch(studentSearchQueryProvider).trim();
+final filteredStudentsProvider =
+    Provider.autoDispose<AsyncValue<List<StudentEntity>>>((ref) {
+      final studentsAsync = ref.watch(studentsListProvider);
+      final query = ref.watch(studentSearchQueryProvider).trim();
 
-  return studentsAsync.whenData((students) {
-    if (query.isEmpty) return students;
-    // Filter by student ID
-    return students
-        .where(
-          (student) =>
-              student.id.contains(query) || student.name.contains(query),
-        )
-        .toList();
-  });
-});
+      return studentsAsync.whenData((students) {
+        if (query.isEmpty) return students;
+        // Filter by student ID
+        return students
+            .where(
+              (student) =>
+                  student.id.contains(query) || student.name.contains(query),
+            )
+            .toList();
+      });
+    });

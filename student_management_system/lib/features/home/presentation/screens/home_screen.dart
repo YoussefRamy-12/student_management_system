@@ -5,6 +5,7 @@ import 'package:student_management_system/features/registeration/presentation/sc
 import 'package:student_management_system/features/settings/presentation/screens/settings_screen.dart';
 import 'package:student_management_system/features/students/presentation/screens/import_export_screen.dart';
 import 'package:student_management_system/features/students/presentation/screens/student_list_screen.dart';
+import 'package:student_management_system/features/analytics/presentation/screens/analytics_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -82,6 +83,18 @@ class HomeScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const ImportExportScreen(),
+                    ),
+                  ),
+                ),
+                _ActionCard(
+                  title: 'التحليلات',
+                  subtitle: 'إحصائيات وتقارير مباشرة',
+                  icon: Icons.analytics_rounded,
+                  color: Colors.deepPurple.shade400,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AnalyticsScreen(),
                     ),
                   ),
                 ),
