@@ -6,6 +6,7 @@ import '../providers/student_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 
 class StudentListScreen extends ConsumerWidget {
   final bool isAttendanceMode;
@@ -53,7 +54,9 @@ class StudentListScreen extends ConsumerWidget {
       body: studentsAsync.when(
         data: (students) => RefreshIndicator(
           onRefresh: () => ref.refresh(studentsListProvider.future),
-          child: ListView.separated(
+          child: ResponsiveContainer(
+            maxWidth: 800,
+            child: ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: students.length,
             separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -139,6 +142,7 @@ class StudentListScreen extends ConsumerWidget {
             },
           ),
         ),
+        ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
           child: Column(
@@ -162,68 +166,71 @@ class StudentListScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      constraints: const BoxConstraints(maxWidth: 650),
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'بيانات الطالب',
-              style: GoogleFonts.outfit(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _detailRow(Icons.person, 'الاسم', student.name),
-            _detailRow(Icons.badge, 'ID', student.id),
-            _detailRow(Icons.school, 'الصف', student.grade),
-            _detailRow(Icons.location_on, 'العنوان', student.address),
-            _detailRow(Icons.chat, 'واتساب', student.whatsapp),
-            _detailRow(Icons.phone, 'الموبايل', student.phone),
-            const SizedBox(height: 24),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () => _shareOnWhatsApp(student.whatsapp, student.name),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: FaIcon(
-                      FontAwesomeIcons.whatsapp,
-                      color: AppTheme.presentColor,
-                    ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  "رسالة افتقاد واتساب",
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'بيانات الطالب',
+                style: GoogleFonts.outfit(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 16),
+              _detailRow(Icons.person, 'الاسم', student.name),
+              _detailRow(Icons.badge, 'ID', student.id),
+              _detailRow(Icons.school, 'الصف', student.grade),
+              _detailRow(Icons.location_on, 'العنوان', student.address),
+              _detailRow(Icons.chat, 'واتساب', student.whatsapp),
+              _detailRow(Icons.phone, 'الموبايل', student.phone),
+              const SizedBox(height: 24),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () => _shareOnWhatsApp(student.whatsapp, student.name),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: FaIcon(
+                        FontAwesomeIcons.whatsapp,
+                        color: AppTheme.presentColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    "رسالة افتقاد واتساب",
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -259,7 +266,9 @@ class StudentListScreen extends ConsumerWidget {
           Icon(icon, size: 20, color: AppTheme.primaryColor),
           const SizedBox(width: 12),
           Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(value),
+          Expanded(
+            child: Text(value, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );
@@ -274,6 +283,7 @@ class StudentListScreen extends ConsumerWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      constraints: const BoxConstraints(maxWidth: 650),
       builder: (context) {
         final _noteController = TextEditingController();
         DateTime _selectedDate = DateTime.now();

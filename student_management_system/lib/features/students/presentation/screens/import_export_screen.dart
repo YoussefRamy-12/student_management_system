@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/excel_helper.dart';
 import '../../../../core/entities/student_entity.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/student_provider.dart';
 
 class ImportExportScreen extends ConsumerWidget {
@@ -14,40 +15,43 @@ class ImportExportScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('استيراد وتصدير البيانات')),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildActionCard(
-              context,
-              title: 'استيراد من Excel',
-              subtitle: 'إضافة مجموعة طلاب من ملف خارجي',
-              icon: Icons.upload_file_rounded,
-              color: Colors.green,
-              onTap: () => _importData(context, ref),
-            ),
-            const SizedBox(height: 20),
-            _buildActionCard(
-              context,
-              title: 'تصدير إلى Excel',
-              subtitle: 'حفظ قائمة الطلاب والغياب في ملف',
-              icon: Icons.download_for_offline_rounded,
-              color: Colors.blue,
-              onTap: () => _showRenameDialog(context, ref),
-            ),
-            const SizedBox(height: 20),
-            // _buildActionCard(
-            //   context,
-            //   title: 'نسخة احتياطية',
-            //   subtitle: 'رفع نسخة احتياطية للسحابة',
-            //   icon: Icons.cloud_upload_rounded,
-            //   color: Colors.orange,
-            //   onTap: () {
-            //   Implement Backup
-            //   },
-            // ),
-          ],
+      body: ResponsiveContainer(
+        maxWidth: 700,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildActionCard(
+                context,
+                title: 'استيراد من Excel',
+                subtitle: 'إضافة مجموعة طلاب من ملف خارجي',
+                icon: Icons.upload_file_rounded,
+                color: Colors.green,
+                onTap: () => _importData(context, ref),
+              ),
+              const SizedBox(height: 20),
+              _buildActionCard(
+                context,
+                title: 'تصدير إلى Excel',
+                subtitle: 'حفظ قائمة الطلاب والغياب في ملف',
+                icon: Icons.download_for_offline_rounded,
+                color: Colors.blue,
+                onTap: () => _showRenameDialog(context, ref),
+              ),
+              const SizedBox(height: 20),
+              // _buildActionCard(
+              //   context,
+              //   title: 'نسخة احتياطية',
+              //   subtitle: 'رفع نسخة احتياطية للسحابة',
+              //   icon: Icons.cloud_upload_rounded,
+              //   color: Colors.orange,
+              //   onTap: () {
+              //   Implement Backup
+              //   },
+              // ),
+            ],
+          ),
         ),
       ),
     );

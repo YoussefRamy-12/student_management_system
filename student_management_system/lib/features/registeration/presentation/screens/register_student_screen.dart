@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/entities/student_entity.dart';
 import '../providers/registration_provider.dart';
 import '../../../../features/students/presentation/providers/student_provider.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 
 class RegisterStudentScreen extends ConsumerStatefulWidget {
   const RegisterStudentScreen({super.key});
@@ -93,9 +94,11 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
       appBar: AppBar(title: const Text("تسجيل طالب جديد")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
+        child: ResponsiveContainer(
+          maxWidth: 700,
+          child: Form(
+            key: _formKey,
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildSectionHeader("المعلومات الأساسية"),
@@ -221,6 +224,7 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
               const SizedBox(height: 40),
             ],
           ),
+        ),
         ),
       ),
     );

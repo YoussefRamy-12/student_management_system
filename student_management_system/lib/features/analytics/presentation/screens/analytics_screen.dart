@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../analytics/data/models/analytics_model.dart';
+import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/analytics_provider.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
@@ -21,10 +22,14 @@ class AnalyticsScreen extends ConsumerWidget {
           SliverPadding(
             padding: const EdgeInsets.all(20),
             sliver: analyticsAsync.when(
-              data: (snapshot) => SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildStatCardsGrid(snapshot),
-                  const SizedBox(height: 24),
+              data: (snapshot) => SliverToBoxAdapter(
+                child: ResponsiveContainer(
+                  maxWidth: 900,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildStatCardsGrid(snapshot, context),
+                      const SizedBox(height: 24),
                   _buildActivityTable(snapshot),
                   const SizedBox(height: 24),
                   _buildPieChart(snapshot),
@@ -70,7 +75,9 @@ class AnalyticsScreen extends ConsumerWidget {
                     context,
                   ),
                   const SizedBox(height: 40),
-                ]),
+                    ],
+                  ),
+                ),
               ),
               loading: () => const SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator()),
@@ -101,7 +108,7 @@ class AnalyticsScreen extends ConsumerWidget {
   // ───────────── APP BAR ─────────────
   Widget _buildAppBar(BuildContext context, WidgetRef ref, DateTime date) {
     return SliverAppBar(
-      expandedHeight: 165,
+      expandedHeight: 190,
       floating: false,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
@@ -127,13 +134,15 @@ class AnalyticsScreen extends ConsumerWidget {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 80, 20, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          '📊 التحليلات',
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            '📊 التحليلات',
                           style: GoogleFonts.outfit(
                             fontSize: 26,
                             fontWeight: FontWeight.bold,
@@ -152,7 +161,9 @@ class AnalyticsScreen extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
                       children: [
                         InkWell(
                           onTap: () => _pickDate(context, ref, date),
@@ -192,7 +203,6 @@ class AnalyticsScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
                         InkWell(
                           onTap: () {
                             ref
@@ -234,6 +244,7 @@ class AnalyticsScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
+              ),
               ),
             ],
           ),
@@ -286,14 +297,17 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // ───────────── STAT CARDS ─────────────
-  Widget _buildStatCardsGrid(AnalyticsSnapshot s) {
+  Widget _buildStatCardsGrid(AnalyticsSnapshot s, BuildContext context) {
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+
     return GridView.count(
-      crossAxisCount: 2,
+      crossAxisCount: isDesktop ? 4 : (isTablet ? 4 : 2),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 14,
       mainAxisSpacing: 14,
-      childAspectRatio: 1.3,
+      childAspectRatio: isDesktop ? 1.5 : (isTablet ? 1.4 : 1.3),
       children: [
         _StatCard(
           title: 'إجمالي الطلاب',
@@ -915,47 +929,57 @@ class _StatCard extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SafeArea(
-              child: Row(
-                children: [
-                  SafeArea(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SafeArea(
+                      child: Row(
+                        children: [
+                          SafeArea(
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(icon, color: color),
+                            ),
+                          ),
+                        ],
                       ),
-                      child: Icon(icon, color: color),
                     ),
-                  ),
-                ],
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          value,
+                          style: GoogleFonts.outfit(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: color,
+                          ),
+                        ),
+                        Text(
+                          title,
+                          style: GoogleFonts.outfit(
+                            fontSize: 12,
+                            color: AppTheme.textLightColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: GoogleFonts.outfit(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    color: AppTheme.textLightColor,
-                  ),
-                ),
-              ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
