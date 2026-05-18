@@ -27,16 +27,20 @@ class AppTheme {
   );
 
   static ThemeData get lightTheme {
+    final baseTextTheme = ThemeData.light().textTheme;
     return ThemeData(
       useMaterial3: true,
+      brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
+        brightness: Brightness.light,
         primary: primaryColor,
         secondary: secondaryColor,
         surface: backgroundColor,
+        onSurface: textColor,
       ),
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.outfitTextTheme().copyWith(
+      textTheme: GoogleFonts.outfitTextTheme(baseTextTheme).copyWith(
         displayLarge: GoogleFonts.outfit(
           fontSize: 32,
           fontWeight: FontWeight.bold,
@@ -98,6 +102,47 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 18,
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: cardColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: GoogleFonts.outfit(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: textColor,
+        ),
+        contentTextStyle: GoogleFonts.outfit(
+          fontSize: 16,
+          color: textLightColor,
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: cardColor,
+        modalBackgroundColor: cardColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: cardColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        textStyle: GoogleFonts.outfit(fontSize: 16, color: textColor),
+      ),
+      listTileTheme: ListTileThemeData(
+        textColor: textColor,
+        iconColor: textLightColor,
+        titleTextStyle: GoogleFonts.outfit(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+        ),
+        subtitleTextStyle: GoogleFonts.outfit(
+          fontSize: 14,
+          color: textLightColor,
         ),
       ),
     );

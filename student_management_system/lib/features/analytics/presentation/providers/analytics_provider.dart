@@ -15,8 +15,8 @@ class SelectedAnalyticsDateNotifier extends Notifier<DateTime> {
 /// Selected date for analytics (defaults to today)
 final selectedAnalyticsDateProvider =
     NotifierProvider<SelectedAnalyticsDateNotifier, DateTime>(
-  SelectedAnalyticsDateNotifier.new,
-);
+      SelectedAnalyticsDateNotifier.new,
+    );
 
 /// Fetches attendance records for the selected date from the backend
 final attendanceRecordsProvider = FutureProvider<List<AttendanceRecord>>((
@@ -34,13 +34,13 @@ class AnalyticsSnapshot {
   final int totalRegistered;
   final int classPresent;
   final int classExcuse;
-  final int massPresent;
-  final int massExcuse;
+  final int theDivineLiturgyPresent;
+  final int theDivineLiturgyExcuse;
   final double classAttendanceRate;
-  final double massAttendanceRate;
-  final List<StudentEntity> absentMassNoExcuse;
+  final double theDivineLiturgyAttendanceRate;
+  final List<StudentEntity> absentTheDivineLiturgyNoExcuse;
   final List<StudentEntity> absentClassNoExcuse;
-  final List<AttendanceRecord> massExcuseRecords;
+  final List<AttendanceRecord> theDivineLiturgyExcuseRecords;
   final List<AttendanceRecord> classExcuseRecords;
   final Map<String, int> activityCounts;
 
@@ -48,13 +48,13 @@ class AnalyticsSnapshot {
     required this.totalRegistered,
     required this.classPresent,
     required this.classExcuse,
-    required this.massPresent,
-    required this.massExcuse,
+    required this.theDivineLiturgyPresent,
+    required this.theDivineLiturgyExcuse,
     required this.classAttendanceRate,
-    required this.massAttendanceRate,
-    required this.absentMassNoExcuse,
+    required this.theDivineLiturgyAttendanceRate,
+    required this.absentTheDivineLiturgyNoExcuse,
     required this.absentClassNoExcuse,
-    required this.massExcuseRecords,
+    required this.theDivineLiturgyExcuseRecords,
     required this.classExcuseRecords,
     required this.activityCounts,
   });
@@ -78,8 +78,9 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
 
         final classPresent = activityCounts['حضور حصة السبت'] ?? 0;
         final classExcuse = activityCounts['اعتذار عن حصة السبت'] ?? 0;
-        final massPresent = activityCounts['حضور قداس الجمعة'] ?? 0;
-        final massExcuse = activityCounts['اعتذار عن قداس الجمعة'] ?? 0;
+        final theDivineLiturgyPresent = activityCounts['حضور قداس الجمعة'] ?? 0;
+        final theDivineLiturgyExcuse =
+            activityCounts['اعتذار عن قداس الجمعة'] ?? 0;
 
         final total = students.length;
 
@@ -92,11 +93,11 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
             .where((r) => r.type == 'اعتذار عن حصة السبت')
             .map((r) => r.id)
             .toSet();
-        final massPresentIds = records
+        final theDivineLiturgyPresentIds = records
             .where((r) => r.type == 'حضور قداس الجمعة')
             .map((r) => r.id)
             .toSet();
-        final massExcuseIds = records
+        final theDivineLiturgyExcuseIds = records
             .where((r) => r.type == 'اعتذار عن قداس الجمعة')
             .map((r) => r.id)
             .toSet();
@@ -109,16 +110,16 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
                   !classExcuseIds.contains(s.id),
             )
             .toList();
-        final absentMassNoExcuse = students
+        final absentTheDivineLiturgyNoExcuse = students
             .where(
               (s) =>
-                  !massPresentIds.contains(s.id) &&
-                  !massExcuseIds.contains(s.id),
+                  !theDivineLiturgyPresentIds.contains(s.id) &&
+                  !theDivineLiturgyExcuseIds.contains(s.id),
             )
             .toList();
 
         // Excuse records for detail tables
-        final massExcuseRecords = records
+        final theDivineLiturgyExcuseRecords = records
             .where((r) => r.type == 'اعتذار عن قداس الجمعة')
             .toList();
         final classExcuseRecords = records
@@ -130,13 +131,15 @@ final analyticsSnapshotProvider = Provider<AsyncValue<AnalyticsSnapshot>>((
             totalRegistered: total,
             classPresent: classPresent,
             classExcuse: classExcuse,
-            massPresent: massPresent,
-            massExcuse: massExcuse,
+            theDivineLiturgyPresent: theDivineLiturgyPresent,
+            theDivineLiturgyExcuse: theDivineLiturgyExcuse,
             classAttendanceRate: total > 0 ? (classPresent / total) * 100 : 0,
-            massAttendanceRate: total > 0 ? (massPresent / total) * 100 : 0,
-            absentMassNoExcuse: absentMassNoExcuse,
+            theDivineLiturgyAttendanceRate: total > 0
+                ? (theDivineLiturgyPresent / total) * 100
+                : 0,
+            absentTheDivineLiturgyNoExcuse: absentTheDivineLiturgyNoExcuse,
             absentClassNoExcuse: absentClassNoExcuse,
-            massExcuseRecords: massExcuseRecords,
+            theDivineLiturgyExcuseRecords: theDivineLiturgyExcuseRecords,
             classExcuseRecords: classExcuseRecords,
             activityCounts: activityCounts,
           ),

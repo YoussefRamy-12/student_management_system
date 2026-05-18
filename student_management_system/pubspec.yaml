@@ -44,6 +44,9 @@ dependencies:
   url_launcher: ^6.3.2
   font_awesome_flutter: ^11.0.0
   fl_chart: ^1.2.0
+  shared_preferences: ^2.2.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

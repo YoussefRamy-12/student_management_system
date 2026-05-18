@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:student_management_system/core/theme/app_theme.dart';
 import 'package:student_management_system/core/widgets/responsive_layout.dart';
+import 'package:student_management_system/core/l10n/app_localizations.dart';
 import 'package:student_management_system/features/registeration/presentation/screens/register_student_screen.dart';
 import 'package:student_management_system/features/settings/presentation/screens/settings_screen.dart';
 import 'package:student_management_system/features/students/presentation/screens/import_export_screen.dart';
 import 'package:student_management_system/features/students/presentation/screens/student_list_screen.dart';
 import 'package:student_management_system/features/analytics/presentation/screens/analytics_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final isTablet = ResponsiveLayout.isTablet(context);
+    final l10n = ref.watch(appLocalizationsProvider);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
+          _buildAppBar(context, l10n),
           SliverPadding(
             padding: const EdgeInsets.all(20),
             sliver: SliverGrid(
@@ -31,8 +34,8 @@ class HomeScreen extends StatelessWidget {
               ),
               delegate: SliverChildListDelegate([
                 _ActionCard(
-                  title: 'تسجيل طالب',
-                  subtitle: 'إضافة طالب جديد للنظام',
+                  title: l10n.registerStudent,
+                  subtitle: l10n.registerStudentSub,
                   icon: Icons.person_add_rounded,
                   gradient: AppTheme.primaryGradient,
                   onTap: () => Navigator.push(
@@ -43,8 +46,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: 'تسجيل الحضور',
-                  subtitle: 'رصد غياب وحضور الطلاب',
+                  title: l10n.recordAttendance,
+                  subtitle: l10n.recordAttendanceSub,
                   icon: Icons.fact_check_rounded,
                   gradient: AppTheme.accentGradient,
                   onTap: () => Navigator.push(
@@ -56,8 +59,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: 'سجل الطلاب',
-                  subtitle: 'عرض بيانات جميع الطلاب',
+                  title: l10n.studentDirectory,
+                  subtitle: l10n.studentDirectorySub,
                   icon: Icons.people_alt_rounded,
                   color: Colors.indigo.shade400,
                   onTap: () => Navigator.push(
@@ -69,8 +72,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: 'الإعدادات',
-                  subtitle: 'تخصيص إعدادات التطبيق',
+                  title: l10n.settings,
+                  subtitle: l10n.settingsSub,
                   icon: Icons.settings_suggest_rounded,
                   color: Colors.orange.shade400,
                   onTap: () => Navigator.push(
@@ -79,8 +82,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: 'استيراد وتصدير',
-                  subtitle: 'إدارة البيانات والملفات',
+                  title: l10n.importExport,
+                  subtitle: l10n.importExportSub,
                   icon: Icons.import_export_rounded,
                   color: Colors.teal.shade400,
                   onTap: () => Navigator.push(
@@ -91,8 +94,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 _ActionCard(
-                  title: 'التحليلات',
-                  subtitle: 'إحصائيات وتقارير مباشرة',
+                  title: l10n.analytics,
+                  subtitle: l10n.analyticsSub,
                   icon: Icons.analytics_rounded,
                   color: Colors.deepPurple.shade400,
                   onTap: () => Navigator.push(
@@ -140,7 +143,7 @@ class HomeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'إحصائيات سريعة',
+                              l10n.quickStats,
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -148,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'تم تسجيل حضور 24 طالب اليوم',
+                              l10n.presentCountToday(24),
                               style: GoogleFonts.outfit(
                                 fontSize: 14,
                                 color: AppTheme.textLightColor,
@@ -168,7 +171,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(BuildContext context, AppLocalizations l10n) {
     return SliverAppBar(
       expandedHeight: 200,
       floating: false,
@@ -194,7 +197,7 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'مرحباً بك!',
+                        l10n.welcome,
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           color: Colors.white.withValues(alpha: 0.8),
@@ -202,7 +205,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'نظام إدارة الطلاب',
+                        l10n.studentManagementSystem,
                         style: GoogleFonts.outfit(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,

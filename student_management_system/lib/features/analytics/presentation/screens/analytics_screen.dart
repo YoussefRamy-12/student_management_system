@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../analytics/data/models/analytics_model.dart';
+import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/analytics_provider.dart';
 
@@ -14,11 +15,12 @@ class AnalyticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final analyticsAsync = ref.watch(analyticsSnapshotProvider);
     final selectedDate = ref.watch(selectedAnalyticsDateProvider);
+    final l10n = ref.watch(appLocalizationsProvider);
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(context, ref, selectedDate),
+          _buildAppBar(context, ref, selectedDate, l10n),
           SliverPadding(
             padding: const EdgeInsets.all(20),
             sliver: analyticsAsync.when(
@@ -28,51 +30,57 @@ class AnalyticsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildStatCardsGrid(snapshot, context),
+                      _buildStatCardsGrid(snapshot, context, l10n),
                       const SizedBox(height: 24),
-                      _buildActivityTable(snapshot),
+                      _buildActivityTable(snapshot, l10n),
                       const SizedBox(height: 24),
-                      _buildPieChart(snapshot),
+                      _buildPieChart(snapshot, l10n),
                       const SizedBox(height: 24),
                       _buildAttendanceRateBar(
-                        'نسبة حضور الحصة',
+                        l10n.classAttendanceRate,
                         snapshot.classAttendanceRate,
                         Colors.blue,
                       ),
                       const SizedBox(height: 12),
                       _buildAttendanceRateBar(
-                        'نسبة حضور القداس',
-                        snapshot.massAttendanceRate,
+                        l10n.theDivineLiturgyAttendanceRate,
+                        snapshot.theDivineLiturgyAttendanceRate,
                         Colors.purple,
                       ),
                       const SizedBox(height: 24),
-                      if (snapshot.absentMassNoExcuse.isNotEmpty)
+                      if (snapshot.absentTheDivineLiturgyNoExcuse.isNotEmpty)
                         _buildWarningBanner(
-                          'اللي ماجوش قداس منغير عذر (${snapshot.absentMassNoExcuse.length})',
+                          l10n.absentTheDivineLiturgyWarning(
+                            snapshot.absentTheDivineLiturgyNoExcuse.length,
+                          ),
                           Colors.amber,
                           Icons.warning_rounded,
                         ),
                       if (snapshot.absentClassNoExcuse.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         _buildWarningBanner(
-                          'اللي ماحضروش حصة منغير عذر (${snapshot.absentClassNoExcuse.length})',
+                          l10n.absentClassWarning(
+                            snapshot.absentClassNoExcuse.length,
+                          ),
                           Colors.orange,
                           Icons.warning_amber_rounded,
                         ),
                       ],
                       const SizedBox(height: 24),
                       _buildExcuseTable(
-                        'اعذار القداس',
-                        snapshot.massExcuseRecords,
+                        l10n.theDivineLiturgyExcusesTitle,
+                        snapshot.theDivineLiturgyExcuseRecords,
                         Colors.purple,
                         context,
+                        l10n,
                       ),
                       const SizedBox(height: 20),
                       _buildExcuseTable(
-                        'اعذار الحصة',
+                        l10n.classExcusesTitle,
                         snapshot.classExcuseRecords,
                         Colors.blue,
                         context,
+                        l10n,
                       ),
                       const SizedBox(height: 40),
                     ],
@@ -93,7 +101,10 @@ class AnalyticsScreen extends ConsumerWidget {
                         color: Colors.red,
                       ),
                       const SizedBox(height: 16),
-                      Text('حدث خطأ: $err', textAlign: TextAlign.center),
+                      Text(
+                        l10n.errorOccurred(err.toString()),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ),
                 ),
@@ -106,14 +117,18 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // ───────────── APP BAR ─────────────
-  Widget _buildAppBar(BuildContext context, WidgetRef ref, DateTime date) {
+  Widget _buildAppBar(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime date,
+    AppLocalizations l10n,
+  ) {
     return SliverAppBar(
       expandedHeight: 190,
       floating: true,
       snap: true,
       pinned: false,
 
-      // backgroundColor: AppTheme.primaryColor,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(gradient: AppTheme.primaryGradient),
@@ -145,7 +160,7 @@ class AnalyticsScreen extends ConsumerWidget {
                       Row(
                         children: [
                           Text(
-                            '📊 التحليلات',
+                            l10n.analyticsHeader,
                             style: GoogleFonts.outfit(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
@@ -154,7 +169,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           ),
                           const Spacer(),
                           Text(
-                            "يوم: ${_getDayName(date.weekday)}",
+                            "${l10n.dayPrefix} ${l10n.dayName(date.weekday)}",
                             style: GoogleFonts.outfit(
                               fontSize: 15,
                               color: Colors.white,
@@ -232,7 +247,7 @@ class AnalyticsScreen extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "النهارده",
+                                    l10n.today,
                                     style: GoogleFonts.outfit(
                                       fontSize: 15,
                                       color: Colors.white,
@@ -278,29 +293,12 @@ class AnalyticsScreen extends ConsumerWidget {
     }
   }
 
-  String _getDayName(int weekday) {
-    switch (weekday) {
-      case 1:
-        return 'الإثنين';
-      case 2:
-        return 'الثلاثاء';
-      case 3:
-        return 'الأربعاء';
-      case 4:
-        return 'الخميس';
-      case 5:
-        return 'الجمعة';
-      case 6:
-        return 'السبت';
-      case 7:
-        return 'الأحد';
-      default:
-        return '';
-    }
-  }
-
   // ───────────── STAT CARDS ─────────────
-  Widget _buildStatCardsGrid(AnalyticsSnapshot s, BuildContext context) {
+  Widget _buildStatCardsGrid(
+    AnalyticsSnapshot s,
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final isTablet = ResponsiveLayout.isTablet(context);
 
@@ -313,25 +311,25 @@ class AnalyticsScreen extends ConsumerWidget {
       childAspectRatio: isDesktop ? 1.5 : (isTablet ? 1.4 : 1.3),
       children: [
         _StatCard(
-          title: 'إجمالي الطلاب',
+          title: l10n.totalStudents,
           value: '${s.totalRegistered}',
           icon: Icons.people_alt_rounded,
           color: AppTheme.primaryColor,
         ),
         _StatCard(
-          title: 'حضور الحصة',
+          title: l10n.classAttendance,
           value: '${s.classPresent}',
           icon: Icons.school_rounded,
           color: Colors.blue,
         ),
         _StatCard(
-          title: 'حضور القداس',
-          value: '${s.massPresent}',
+          title: l10n.theDivineLiturgyAttendance,
+          value: '${s.theDivineLiturgyPresent}',
           icon: Icons.church_rounded,
           color: Colors.purple,
         ),
         _StatCard(
-          title: 'نسبة الحضور',
+          title: l10n.attendanceRate,
           value: '${s.classAttendanceRate.toStringAsFixed(0)}%',
           icon: Icons.trending_up_rounded,
           color: s.classAttendanceRate >= 50
@@ -343,12 +341,20 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // ───────────── ACTIVITY TABLE ─────────────
-  Widget _buildActivityTable(AnalyticsSnapshot s) {
+  Widget _buildActivityTable(AnalyticsSnapshot s, AppLocalizations l10n) {
     final rows = [
-      _ActivityRow('حضور حصة السبت', s.classPresent, Colors.blue),
-      _ActivityRow('حضور قداس الجمعة', s.massPresent, Colors.purple),
-      _ActivityRow('اعتذار عن حصة السبت', s.classExcuse, Colors.orange),
-      _ActivityRow('اعتذار عن قداس الجمعة', s.massExcuse, Colors.red),
+      _ActivityRow(l10n.saturdayClassPresent, s.classPresent, Colors.blue),
+      _ActivityRow(
+        l10n.fridayTheDivineLiturgyPresent,
+        s.theDivineLiturgyPresent,
+        Colors.purple,
+      ),
+      _ActivityRow(l10n.saturdayClassExcuse, s.classExcuse, Colors.orange),
+      _ActivityRow(
+        l10n.fridayTheDivineLiturgyExcuse,
+        s.theDivineLiturgyExcuse,
+        Colors.red,
+      ),
     ];
 
     return Container(
@@ -378,7 +384,7 @@ class AnalyticsScreen extends ConsumerWidget {
                 const Icon(Icons.table_chart_rounded, color: Colors.white),
                 const SizedBox(width: 10),
                 Text(
-                  'تفاصيل النشاط',
+                  l10n.activityDetails,
                   style: GoogleFonts.outfit(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -439,8 +445,12 @@ class AnalyticsScreen extends ConsumerWidget {
   }
 
   // ───────────── PIE CHART ─────────────
-  Widget _buildPieChart(AnalyticsSnapshot s) {
-    final total = s.classPresent + s.classExcuse + s.massPresent + s.massExcuse;
+  Widget _buildPieChart(AnalyticsSnapshot s, AppLocalizations l10n) {
+    final total =
+        s.classPresent +
+        s.classExcuse +
+        s.theDivineLiturgyPresent +
+        s.theDivineLiturgyExcuse;
     if (total == 0) {
       return Container(
         padding: const EdgeInsets.all(40),
@@ -450,7 +460,7 @@ class AnalyticsScreen extends ConsumerWidget {
         ),
         child: Center(
           child: Text(
-            'لا توجد بيانات حضور لهذا اليوم',
+            l10n.noAttendanceData,
             style: GoogleFonts.outfit(
               color: AppTheme.textLightColor,
               fontSize: 15,
@@ -473,10 +483,10 @@ class AnalyticsScreen extends ConsumerWidget {
             color: Colors.white,
           ),
         ),
-      if (s.massPresent > 0)
+      if (s.theDivineLiturgyPresent > 0)
         PieChartSectionData(
-          value: s.massPresent.toDouble(),
-          title: '${s.massPresent}',
+          value: s.theDivineLiturgyPresent.toDouble(),
+          title: '${s.theDivineLiturgyPresent}',
           color: Colors.purple,
           radius: 75,
           titleStyle: GoogleFonts.outfit(
@@ -497,10 +507,10 @@ class AnalyticsScreen extends ConsumerWidget {
             color: Colors.white,
           ),
         ),
-      if (s.massExcuse > 0)
+      if (s.theDivineLiturgyExcuse > 0)
         PieChartSectionData(
-          value: s.massExcuse.toDouble(),
-          title: '${s.massExcuse}',
+          value: s.theDivineLiturgyExcuse.toDouble(),
+          title: '${s.theDivineLiturgyExcuse}',
           color: Colors.red,
           radius: 70,
           titleStyle: GoogleFonts.outfit(
@@ -527,7 +537,7 @@ class AnalyticsScreen extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            'توزيع الحضور',
+            l10n.attendanceDistribution,
             style: GoogleFonts.outfit(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -551,10 +561,10 @@ class AnalyticsScreen extends ConsumerWidget {
             runSpacing: 10,
             alignment: WrapAlignment.center,
             children: [
-              _legendItem('حضور حصة', Colors.blue),
-              _legendItem('حضور قداس', Colors.purple),
-              _legendItem('اعتذار حصة', Colors.orange),
-              _legendItem('اعتذار قداس', Colors.red),
+              _legendItem(l10n.legendClassPresent, Colors.blue),
+              _legendItem(l10n.legendTheDivineLiturgyPresent, Colors.purple),
+              _legendItem(l10n.legendClassExcuse, Colors.orange),
+              _legendItem(l10n.legendTheDivineLiturgyExcuse, Colors.red),
             ],
           ),
         ],
@@ -664,6 +674,7 @@ class AnalyticsScreen extends ConsumerWidget {
     List<AttendanceRecord> records,
     Color headerColor,
     BuildContext context,
+    AppLocalizations l10n,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -729,7 +740,7 @@ class AnalyticsScreen extends ConsumerWidget {
                 SizedBox(
                   width: 50,
                   child: Text(
-                    'ID',
+                    l10n.id,
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -738,7 +749,7 @@ class AnalyticsScreen extends ConsumerWidget {
                 ),
                 Expanded(
                   child: Text(
-                    'الاسم',
+                    l10n.name,
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -748,7 +759,7 @@ class AnalyticsScreen extends ConsumerWidget {
                 SizedBox(
                   width: 100,
                   child: Text(
-                    'ملاحظات',
+                    l10n.notes,
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -762,7 +773,7 @@ class AnalyticsScreen extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'لا توجد اعتذارات',
+                l10n.noExcuses,
                 style: GoogleFonts.outfit(color: AppTheme.textLightColor),
               ),
             )
@@ -774,7 +785,7 @@ class AnalyticsScreen extends ConsumerWidget {
                     context: context,
                     builder: (dialogContext) => AlertDialog(
                       title: Text(
-                        "تفاصيل الاعتذار",
+                        l10n.excuseDetails,
                         style: GoogleFonts.outfit(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -785,7 +796,7 @@ class AnalyticsScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "ID",
+                            l10n.id,
                             textAlign: TextAlign.right,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
@@ -802,7 +813,7 @@ class AnalyticsScreen extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            "الطالب",
+                            l10n.student,
                             textAlign: TextAlign.right,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
@@ -820,7 +831,7 @@ class AnalyticsScreen extends ConsumerWidget {
                           ),
                           const Divider(),
                           Text(
-                            "الملاحظات",
+                            l10n.notes,
                             textAlign: TextAlign.right,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
@@ -842,7 +853,7 @@ class AnalyticsScreen extends ConsumerWidget {
                         TextButton(
                           onPressed: () => Navigator.pop(dialogContext),
                           child: Text(
-                            "حسنا",
+                            l10n.ok,
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

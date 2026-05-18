@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/entities/student_entity.dart';
+import '../../../../core/l10n/app_localizations.dart';
 import '../providers/registration_provider.dart';
 import '../../../../features/students/presentation/providers/student_provider.dart';
 import '../../../../core/widgets/responsive_layout.dart';
@@ -26,16 +27,16 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
   String? _notes;
 
   // Validation Logic
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) return "مطلوب";
+  String? _validatePhone(String? value, AppLocalizations l10n) {
+    if (value == null || value.isEmpty) return l10n.required;
     final regExp = RegExp(r'^01[0125][0-9]{8}$');
     if (!regExp.hasMatch(value)) {
-      return "يجب أن يكون 11 رقم ويبدأ بـ 01";
+      return l10n.phoneValidationMatch;
     }
     return null;
   }
 
-  void _submit() async {
+  void _submit(AppLocalizations l10n) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -70,8 +71,8 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("تم تسجيل الطالب بنجاح ✅"),
+          SnackBar(
+            content: Text(l10n.registerSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -79,8 +80,8 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("حدث خطأ أثناء التسجيل ❌"),
+          SnackBar(
+            content: Text(l10n.registerFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -90,10 +91,12 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = ref.watch(appLocalizationsProvider);
+
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
-        title: const Text("تسجيل طالب جديد"),
+        title: Text(l10n.registerNewStudent),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -104,103 +107,105 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSectionHeader("المعلومات الأساسية"),
+                _buildSectionHeader(l10n.basicInfo),
                 const SizedBox(height: 16),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "الاسم بالكامل",
-                    prefixIcon: Icon(Icons.person_outline_rounded),
+                  decoration: InputDecoration(
+                    labelText: l10n.fullName,
+                    prefixIcon: const Icon(Icons.person_outline_rounded),
                   ),
                   onSaved: (val) => _name = val!,
-                  validator: (val) => val!.isEmpty ? "برجاء ادخال الاسم" : null,
+                  validator: (val) =>
+                      val!.isEmpty ? l10n.enterNamePrompt : null,
                 ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         initialValue: _grade,
-                        decoration: const InputDecoration(
-                          labelText: "المرحلة",
-                          prefixIcon: Icon(Icons.school_outlined),
+                        decoration: InputDecoration(
+                          visualDensity: VisualDensity.adaptivePlatformDensity,
+                          labelText: l10n.gradeSelect,
+                          prefixIcon: const Icon(Icons.school_outlined),
                         ),
                         items: ['4', '5', '6']
                             .map(
                               (g) => DropdownMenuItem(
                                 value: g,
-                                child: Text("صف $g"),
+                                child: Text(l10n.gradeItem(g)),
                               ),
                             )
                             .toList(),
                         onChanged: (val) => setState(() => _grade = val!),
-                        validator: (val) => val == null ? "مطلوب" : null,
+                        validator: (val) => val == null ? l10n.required : null,
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         initialValue: _diacon,
-                        decoration: const InputDecoration(
-                          labelText: "الحالة",
-                          prefixIcon: Icon(Icons.auto_awesome_outlined),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: l10n.status,
+                          prefixIcon: const Icon(Icons.auto_awesome_outlined),
                         ),
                         items: [
-                          const DropdownMenuItem(
-                            value: "نعم",
-                            child: Text("نعم"),
-                          ),
-                          const DropdownMenuItem(
-                            value: "لا",
-                            child: Text("لا"),
-                          ),
-                          const DropdownMenuItem(
+                          DropdownMenuItem(value: "نعم", child: Text(l10n.yes)),
+                          DropdownMenuItem(value: "لا", child: Text(l10n.no)),
+                          DropdownMenuItem(
                             value: "بنت",
-                            child: Text("بنت"),
+                            child: Text(l10n.girl),
                           ),
                         ],
                         onChanged: (val) => setState(() => _diacon = val!),
-                        validator: (val) => val == null ? "مطلوب" : null,
+                        validator: (val) => val == null ? l10n.required : null,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 32),
-                _buildSectionHeader("معلومات الاتصال"),
+                _buildSectionHeader(l10n.contactInfo),
                 const SizedBox(height: 16),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "العنوان",
-                    prefixIcon: Icon(Icons.location_on_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.address,
+                    prefixIcon: const Icon(Icons.location_on_outlined),
                   ),
                   onSaved: (val) => _address = val!,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "رقم الواتساب",
-                    prefixIcon: Icon(Icons.chat_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.whatsapp,
+                    prefixIcon: const Icon(Icons.chat_outlined),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: _validatePhone,
+                  validator: (val) => _validatePhone(val, l10n),
                   onSaved: (val) => _whatsapp = val!,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "رقم التليفون",
-                    prefixIcon: Icon(Icons.phone_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.mobile,
+                    prefixIcon: const Icon(Icons.phone_outlined),
                   ),
                   keyboardType: TextInputType.phone,
-                  validator: _validatePhone,
+                  validator: (val) => _validatePhone(val, l10n),
                   onSaved: (val) => _phone = val!,
                 ),
                 const SizedBox(height: 32),
-                _buildSectionHeader("إضافات"),
+                _buildSectionHeader(l10n.additions),
                 const SizedBox(height: 16),
                 TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: "ملحوظات",
-                    prefixIcon: Icon(Icons.note_alt_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.notes,
+                    prefixIcon: const Icon(Icons.note_alt_outlined),
                   ),
                   maxLines: 3,
                   onSaved: (val) => _notes = val!,
@@ -223,8 +228,8 @@ class _RegisterStudentScreenState extends ConsumerState<RegisterStudentScreen> {
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
                     ),
-                    onPressed: _submit,
-                    child: const Text("حفظ البيانات"),
+                    onPressed: () => _submit(l10n),
+                    child: Text(l10n.saveData),
                   ),
                 ),
                 const SizedBox(height: 40),

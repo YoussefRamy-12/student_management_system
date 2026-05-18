@@ -22,8 +22,9 @@ abstract class IAttendanceRemoteDataSource {
 }
 
 class AttendanceRemoteDataSourceImpl implements IAttendanceRemoteDataSource {
-  final String _url =
-      "https://script.google.com/macros/s/AKfycbyfLQ5RAz9sy2ztz3qOeS21vIrBqpMDfdUt5lhfDygWW8MTjFf7xrwXXf4sdAmNPoK_pg/exec";
+  final String _url;
+
+  AttendanceRemoteDataSourceImpl(this._url);
 
   @override
   Future<List<StudentModel>> getStudents() async {

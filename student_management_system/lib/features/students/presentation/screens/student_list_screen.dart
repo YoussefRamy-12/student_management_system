@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/entities/student_entity.dart';
+import '../../../../core/l10n/app_localizations.dart';
 import '../providers/student_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -25,6 +26,7 @@ class StudentListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch the filtered provider instead of the raw list
     final studentsAsync = ref.watch(filteredStudentsProvider);
+    final l10n = ref.watch(appLocalizationsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +41,7 @@ class StudentListScreen extends ConsumerWidget {
           ),
         ),
         title: Text(
-          isAttendanceMode ? 'تسجيل الحضور' : 'سجل الطلاب',
+          isAttendanceMode ? l10n.recordAttendance : l10n.studentDirectory,
           style: GoogleFonts.outfit(
             fontSize: 22,
             color: Colors.white,
@@ -54,7 +56,7 @@ class StudentListScreen extends ConsumerWidget {
               style: GoogleFonts.outfit(fontSize: 15),
               onChanged: (value) => search(ref, value),
               decoration: InputDecoration(
-                hintText: 'البحث عن طريق الكود (ID)...',
+                hintText: l10n.searchById,
                 prefixIcon: const Icon(Icons.search_rounded),
                 filled: true,
                 fillColor: Colors.grey.shade100,
@@ -122,7 +124,7 @@ class StudentListScreen extends ConsumerWidget {
                       ),
                     ),
                     subtitle: Text(
-                      'الصف ${student.grade} • ID: ${student.id}',
+                      '${l10n.grade} ${student.grade} • ID: ${student.id}',
                       style: GoogleFonts.outfit(fontSize: 13),
                     ),
                     trailing: Container(
@@ -139,7 +141,7 @@ class StudentListScreen extends ConsumerWidget {
                               onTap: () => _shareOnWhatsApp(
                                 student.whatsapp,
                                 student.name,
-                                message: "",
+                                message: l10n.whatsappMessage(student.name),
                               ),
                               child: FaIcon(
                                 FontAwesomeIcons.whatsapp,
@@ -149,11 +151,14 @@ class StudentListScreen extends ConsumerWidget {
                             ),
                     ),
                     onTap: isAttendanceMode
-                        ? () =>
-                              _showAttendanceBottomSheet(context, ref, student)
+                        ? () => _showAttendanceBottomSheet(
+                            context,
+                            ref,
+                            student,
+                            l10n,
+                          )
                         : () {
-                            // For directory mode, maybe show details or just do nothing for now
-                            _showStudentDetails(context, student);
+                            _showStudentDetails(context, student, l10n);
                           },
                   ),
                 );
@@ -172,7 +177,7 @@ class StudentListScreen extends ConsumerWidget {
                 size: 48,
               ),
               const SizedBox(height: 16),
-              Text('حدث خطأ: $err'),
+              Text(l10n.errorOccurred(err.toString())),
             ],
           ),
         ),
@@ -180,7 +185,11 @@ class StudentListScreen extends ConsumerWidget {
     );
   }
 
-  void _showStudentDetails(BuildContext context, StudentEntity student) {
+  void _showStudentDetails(
+    BuildContext context,
+    StudentEntity student,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -208,27 +217,30 @@ class StudentListScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'بيانات الطالب',
+                l10n.studentDetails,
                 style: GoogleFonts.outfit(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
-              _detailRow(Icons.person, 'الاسم', student.name),
-              _detailRow(Icons.badge, 'ID', student.id),
-              _detailRow(Icons.school, 'الصف', student.grade),
-              _detailRow(Icons.location_on, 'العنوان', student.address),
-              _detailRow(Icons.chat, 'واتساب', student.whatsapp),
-              _detailRow(Icons.phone, 'الموبايل', student.phone),
+              _detailRow(Icons.person, l10n.name, student.name),
+              _detailRow(Icons.badge, l10n.id, student.id),
+              _detailRow(Icons.school, l10n.grade, student.grade),
+              _detailRow(Icons.location_on, l10n.address, student.address),
+              _detailRow(Icons.chat, l10n.whatsapp, student.whatsapp),
+              _detailRow(Icons.phone, l10n.mobile, student.phone),
               const SizedBox(height: 24),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   InkWell(
-                    onTap: () =>
-                        _shareOnWhatsApp(student.whatsapp, student.name),
+                    onTap: () => _shareOnWhatsApp(
+                      student.whatsapp,
+                      student.name,
+                      message: l10n.whatsappMessage(student.name),
+                    ),
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -243,7 +255,7 @@ class StudentListScreen extends ConsumerWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    "رسالة افتقاد واتساب",
+                    l10n.whatsappFollowup,
                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -295,6 +307,7 @@ class StudentListScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     StudentEntity student,
+    AppLocalizations l10n,
   ) {
     showModalBottomSheet(
       context: context,
@@ -335,7 +348,7 @@ class StudentListScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'تسجيل حضور',
+                      l10n.recordAttendance,
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         fontSize: 22,
@@ -381,7 +394,7 @@ class StudentListScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: InputDecorator(
                         decoration: InputDecoration(
-                          labelText: 'التاريخ',
+                          labelText: l10n.attendanceDate,
                           labelStyle: GoogleFonts.outfit(),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -408,7 +421,7 @@ class StudentListScreen extends ConsumerWidget {
                     TextField(
                       controller: _noteController,
                       decoration: InputDecoration(
-                        labelText: 'ملاحظات (اختياري)',
+                        labelText: l10n.notesOptional,
                         labelStyle: GoogleFonts.outfit(),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -423,7 +436,7 @@ class StudentListScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: _AttendanceOption(
-                            title: 'حصة',
+                            title: l10n.classLabel,
                             icon: Icons.school_rounded,
                             color: Colors.blue,
                             isDisabled:
@@ -435,13 +448,14 @@ class StudentListScreen extends ConsumerWidget {
                               "حضور حصة السبت",
                               _noteController.text,
                               _selectedDate,
+                              l10n,
                             ),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: _AttendanceOption(
-                            title: 'اعتذار حصة',
+                            title: l10n.classExcuse,
                             icon: Icons.event_busy_rounded,
                             color: Colors.orange,
                             onTap: () => _sendAttendance(
@@ -451,6 +465,7 @@ class StudentListScreen extends ConsumerWidget {
                               "اعتذار عن حصة السبت",
                               _noteController.text,
                               _selectedDate,
+                              l10n,
                             ),
                           ),
                         ),
@@ -461,7 +476,7 @@ class StudentListScreen extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: _AttendanceOption(
-                            title: 'قداس',
+                            title: l10n.theDivineLiturgyLabel,
                             icon: Icons.church_rounded,
                             color: Colors.purple,
                             isDisabled:
@@ -473,13 +488,14 @@ class StudentListScreen extends ConsumerWidget {
                               "حضور قداس الجمعة",
                               _noteController.text,
                               _selectedDate,
+                              l10n,
                             ),
                           ),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
                           child: _AttendanceOption(
-                            title: 'اعتذار قداس',
+                            title: l10n.theDivineLiturgyExcuse,
                             icon: Icons.cancel_presentation_rounded,
                             color: Colors.red,
                             onTap: () => _sendAttendance(
@@ -489,6 +505,7 @@ class StudentListScreen extends ConsumerWidget {
                               "اعتذار عن قداس الجمعة",
                               _noteController.text,
                               _selectedDate,
+                              l10n,
                             ),
                           ),
                         ),
@@ -511,6 +528,7 @@ class StudentListScreen extends ConsumerWidget {
     String type,
     String? note,
     DateTime? date,
+    AppLocalizations l10n,
   ) async {
     Navigator.pop(
       context,
@@ -518,7 +536,7 @@ class StudentListScreen extends ConsumerWidget {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('جاري التسجيل...')));
+    ).showSnackBar(SnackBar(content: Text(l10n.recordingAttendance)));
 
     final repository = ref.read(studentRepositoryProvider);
     bool success = await repository.submitAttendance(
@@ -533,16 +551,16 @@ class StudentListScreen extends ConsumerWidget {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم التسجيل بنجاح! ✅'),
+        SnackBar(
+          content: Text(l10n.attendanceRecordedSuccess),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('فشل التسجيل ❌'),
+        SnackBar(
+          content: Text(l10n.attendanceRecordedFailed),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),

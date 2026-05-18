@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/excel_helper.dart';
 import '../../../../core/entities/student_entity.dart';
+import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/widgets/responsive_layout.dart';
 import '../providers/student_provider.dart';
 
@@ -13,8 +14,10 @@ class ImportExportScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(appLocalizationsProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text('استيراد وتصدير البيانات')),
+      appBar: AppBar(title: Text(l10n.importExportTitle)),
       body: ResponsiveContainer(
         maxWidth: 700,
         child: Padding(
@@ -24,32 +27,22 @@ class ImportExportScreen extends ConsumerWidget {
             children: [
               _buildActionCard(
                 context,
-                title: 'استيراد من Excel',
-                subtitle: 'إضافة مجموعة طلاب من ملف خارجي',
+                title: l10n.importExcel,
+                subtitle: l10n.importExcelSub,
                 icon: Icons.upload_file_rounded,
                 color: Colors.green,
-                onTap: () => _importData(context, ref),
+                onTap: () => _importData(context, ref, l10n),
               ),
               const SizedBox(height: 20),
               _buildActionCard(
                 context,
-                title: 'تصدير إلى Excel',
-                subtitle: 'حفظ قائمة الطلاب والغياب في ملف',
+                title: l10n.exportExcel,
+                subtitle: l10n.exportExcelSub,
                 icon: Icons.download_for_offline_rounded,
                 color: Colors.blue,
-                onTap: () => _showRenameDialog(context, ref),
+                onTap: () => _showRenameDialog(context, ref, l10n),
               ),
               const SizedBox(height: 20),
-              // _buildActionCard(
-              //   context,
-              //   title: 'نسخة احتياطية',
-              //   subtitle: 'رفع نسخة احتياطية للسحابة',
-              //   icon: Icons.cloud_upload_rounded,
-              //   color: Colors.orange,
-              //   onTap: () {
-              //   Implement Backup
-              //   },
-              // ),
             ],
           ),
         ),
@@ -120,7 +113,7 @@ class ImportExportScreen extends ConsumerWidget {
     );
   }
 
-  void _showRenameDialog(BuildContext context, WidgetRef ref) {
+  void _showRenameDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     final controller = TextEditingController(text: 'students_list');
     final formKey = GlobalKey<FormState>();
 
@@ -131,7 +124,7 @@ class ImportExportScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'تسمية الملف',
+          l10n.nameFileTitle,
           style: GoogleFonts.outfit(
             fontWeight: FontWeight.bold,
             color: AppTheme.textColor,
@@ -143,9 +136,9 @@ class ImportExportScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'أدخل اسم ملف Excel المراد تصديره',
-                style: TextStyle(color: AppTheme.textLightColor, fontSize: 14),
+              Text(
+                l10n.nameFilePrompt,
+                style: const TextStyle(color: AppTheme.textLightColor, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -155,12 +148,12 @@ class ImportExportScreen extends ConsumerWidget {
                 autofocus: true,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'الرجاء إدخال اسم الملف';
+                    return l10n.enterFileNameError;
                   }
                   return null;
                 },
                 decoration: InputDecoration(
-                  hintText: 'اسم الملف',
+                  hintText: l10n.fileNameHint,
                   suffixText: '.xlsx',
                   filled: true,
                   fillColor: AppTheme.primaryColor.withValues(alpha: 0.05),
@@ -188,7 +181,7 @@ class ImportExportScreen extends ConsumerWidget {
                     foregroundColor: AppTheme.textLightColor,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('إلغاء'),
+                  child: Text(l10n.cancel),
                 ),
               ),
               const SizedBox(width: 12),
@@ -202,7 +195,7 @@ class ImportExportScreen extends ConsumerWidget {
                           ? () {
                               if (formKey.currentState!.validate()) {
                                 final name = controller.text.trim();
-                                _exportData(context, ref, name);
+                                _exportData(context, ref, name, l10n);
                                 Navigator.pop(dialogContext);
                               }
                             }
@@ -218,7 +211,7 @@ class ImportExportScreen extends ConsumerWidget {
                         ),
                         minimumSize: Size.zero,
                       ),
-                      child: const Text('تصدير'),
+                      child: Text(l10n.exportBtn),
                     );
                   },
                 ),
@@ -231,7 +224,7 @@ class ImportExportScreen extends ConsumerWidget {
     );
   }
 
-  void _importData(BuildContext context, WidgetRef ref) async {
+  void _importData(BuildContext context, WidgetRef ref, AppLocalizations l10n) async {
     try {
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -248,7 +241,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (students.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('الملف فارغ أو بتنسيق غير صحيح')),
+            SnackBar(content: Text(l10n.fileEmptyError)),
           );
         }
         return;
@@ -264,7 +257,7 @@ class ImportExportScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             title: Text(
-              'خيارات الاستيراد',
+              l10n.importOptionsTitle,
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.bold,
                 color: AppTheme.textColor,
@@ -275,7 +268,7 @@ class ImportExportScreen extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'تم العثور على ${students.length} طالب. كيف تريد استيرادهم؟',
+                  l10n.importFoundPrompt(students.length),
                   style: const TextStyle(color: AppTheme.textLightColor),
                   textAlign: TextAlign.center,
                 ),
@@ -288,19 +281,19 @@ class ImportExportScreen extends ConsumerWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(dialogContext);
-                      _processImport(context, ref, students, isReplace: false);
+                      _processImport(context, ref, students, isReplace: false, l10n: l10n);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('إضافة للبيانات الحالية'),
+                    child: Text(l10n.addToCurrent),
                   ),
                   const SizedBox(height: 12),
                   OutlinedButton(
                     onPressed: () {
                       Navigator.pop(dialogContext);
-                      _processImport(context, ref, students, isReplace: true);
+                      _processImport(context, ref, students, isReplace: true, l10n: l10n);
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
@@ -310,14 +303,14 @@ class ImportExportScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text('استبدال الكل (مسح الحالي)'),
+                    child: Text(l10n.replaceAll),
                   ),
                   const SizedBox(height: 12),
                   TextButton(
                     onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text(
-                      'إلغاء',
-                      style: TextStyle(color: AppTheme.textLightColor),
+                    child: Text(
+                      l10n.cancel,
+                      style: const TextStyle(color: AppTheme.textLightColor),
                     ),
                   ),
                 ],
@@ -331,7 +324,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('خطأ أثناء اختيار الملف: $e'),
+            content: Text(l10n.fileSelectError(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -344,11 +337,12 @@ class ImportExportScreen extends ConsumerWidget {
     WidgetRef ref,
     List<StudentEntity> students, {
     required bool isReplace,
+    required AppLocalizations l10n,
   }) async {
     if (context.mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('جاري الاستيراد...')));
+      ).showSnackBar(SnackBar(content: Text(l10n.importing)));
     }
 
     try {
@@ -368,15 +362,15 @@ class ImportExportScreen extends ConsumerWidget {
           // Refresh the list provider to show new data
           ref.invalidate(studentsListProvider);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('تم الاستيراد بنجاح! ✅'),
+            SnackBar(
+              content: Text(l10n.importSuccess),
               backgroundColor: Colors.green,
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('فشل الاستيراد ❌ (راجع سجل الأخطاء)'),
+            SnackBar(
+              content: Text(l10n.importFailed),
               backgroundColor: Colors.red,
             ),
           );
@@ -385,18 +379,18 @@ class ImportExportScreen extends ConsumerWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('حدث خطأ: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(l10n.errorOccurred(e.toString())), backgroundColor: Colors.red),
         );
       }
     }
   }
 
-  void _exportData(BuildContext context, WidgetRef ref, String fileName) async {
+  void _exportData(BuildContext context, WidgetRef ref, String fileName, AppLocalizations l10n) async {
     try {
       // 1. Show loading state
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('جاري تحضير ملف Excel...')),
+          SnackBar(content: Text(l10n.preparingExcel)),
         );
       }
 
@@ -406,7 +400,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (students.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('لا يوجد طلاب لتصديرهم')),
+            SnackBar(content: Text(l10n.noStudentsToExport)),
           );
         }
         return;
@@ -417,8 +411,8 @@ class ImportExportScreen extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم تصدير الملف بنجاح! ✅'),
+          SnackBar(
+            content: Text(l10n.exportSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -427,7 +421,7 @@ class ImportExportScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل التصدير: $e'),
+            content: Text(l10n.exportFailed(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

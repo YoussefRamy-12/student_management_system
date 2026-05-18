@@ -4,10 +4,12 @@ import 'package:student_management_system/features/attendance/data/datasources/a
 import 'package:student_management_system/features/attendance/data/repositories/student_repository_impl.dart';
 import 'package:student_management_system/features/attendance/domain/repositories/i_student_repository.dart';
 import 'package:student_management_system/features/attendance/domain/usecases/get_all_students_usecase.dart';
+import 'package:student_management_system/features/settings/presentation/providers/settings_provider.dart';
 
 // 1. Provide the Remote Data Source
 final remoteDataSourceProvider = Provider<IAttendanceRemoteDataSource>((ref) {
-  return AttendanceRemoteDataSourceImpl();
+  final settings = ref.watch(settingsProvider);
+  return AttendanceRemoteDataSourceImpl(settings.serverUrl);
 });
 
 // 2. Provide the Repository Implementation
